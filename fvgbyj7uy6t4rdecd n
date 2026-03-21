@@ -14,6 +14,9 @@ pcall(function() cg:RegisterCollisionGroup("NoCollision") end)
 local Connections = {}
 local CharAddedConnections = {}
 local Originals = {}
+local HITBOX_VALUE = _G.HitboxSize or 50
+local HITBOX_COLOR = Color3.fromRGB(0,0,0) --Color3.fromRGB(0, 0, 255)
+local HITBOX_ALPHA = 0.9
 
 local function SetHitbox(player)
     if player == LocalPlayer or Connections[player] then
@@ -244,23 +247,29 @@ Tabs.MainTab:Toggle({
     Callback = function(State)
         _G.Config.Hitbox.Enabled = State
         if State then
-        WindUI:Notify({
-            Title = "MangoJuice Hub Notify",
-            Content = "Hitbox Expander Enabled",
-            Icon = "solar:bell-bold",
-            Duration = 3
-        })
         EnableHitbox()
         else
-            WindUI:Notify({
-                Title = "MangoJuice Hub Notify",
-                Content = "Hitbox Expander Disabled",
-                Icon = "solar:bell-bold",
-                Duration = 3
-            })
             DisableHitbox()
         end
     end
+})
+
+Tabs.MainTab:Space()
+
+WindUI:Notify({
+    Title = "驗證白名單中 ..",
+    Content = "請稍後",
+    Icon = "solar:bell-bold",
+    Duration = 15,
+    CanClose = true,
+})
+
+WindUI:Notify({
+    Title = "白名單驗證成功",
+    Content = "使用者:陳柏儒",
+    Icon = "solar:bell-bold",
+    Duration = 15,
+    CanClose = true,
 })
 
 
