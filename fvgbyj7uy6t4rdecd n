@@ -1,0 +1,271 @@
+local WindUI = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"
+))()
+
+local Players = game:GetService("Players") 
+local LocalPlayer = Players.LocalPLayer
+local WorkSpace = game:GetService("Workspace")
+
+fm = fm or {}
+fm.ch = Players.LocalPlayer.Character
+local cg = game:GetService("PhysicsService")
+pcall(function() cg:RegisterCollisionGroup("NoCollision") end)
+
+local Connections = {}
+local CharAddedConnections = {}
+local Originals = {}
+
+local function SetHitbox(player)
+    if player == LocalPlayer or Connections[player] then
+        return
+    end
+
+    Connections[player] = RunService.RenderStepped:Connect(function()
+        if not _G.Config.Hitbox.Enabled then return end
+
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        if not Originals[player] then
+            Originals[player] = {
+                Size = hrp.Size,
+                Color = hrp.Color,
+                Transparency = hrp.Transparency,
+                CanCollide = hrp.CanCollide
+            }
+        end
+
+        local size = _G.Config.Hitbox.Size or 50
+
+        hrp.Size = Vector3.new(size, size, size)
+        hrp.Color = HITBOX_COLOR
+        hrp.Transparency = HITBOX_ALPHA
+        hrp.CanCollide = false
+    end)
+end
+
+local function WatchCharacter(player)
+    if CharAddedConnections[player] then return end
+
+    CharAddedConnections[player] = player.CharacterAdded:Connect(function()
+        task.wait(0.2)
+        Originals[player] = nil
+        if _G.Config.Hitbox.Enabled then
+            SetHitbox(player)
+        end
+    end)
+end
+
+local function EnableHitbox()
+    _G.Config.Hitbox.Enabled = true
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            SetHitbox(player)
+            WatchCharacter(player)
+        end
+    end
+end
+
+local function DisableHitbox()
+    _G.Config.Hitbox.Enabled = false
+
+    for _, conn in pairs(Connections) do
+        if conn then conn:Disconnect() end
+    end
+
+    for player, data in pairs(Originals) do
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp and data then
+            hrp.Size = data.Size
+            hrp.Color = data.Color
+            hrp.Transparency = data.Transparency
+            hrp.CanCollide = data.CanCollide
+        end
+    end
+
+    for _, conn in pairs(CharAddedConnections) do
+        if conn then conn:Disconnect() end
+    end
+
+    table.clear(Connections)
+    table.clear(Originals)
+    table.clear(CharAddedConnections)
+end
+
+_G.Config = {
+
+    Other = {
+        NoClip = false,
+    },
+
+    Hitbox = {
+        Enabled = false,
+        Size = 10,
+    },
+}
+
+Players.LocalPlayer.CharacterAdded:Connect(function(char)
+    fm.ch = char
+    if _G.Config.Other.NoClip then
+        task.defer(function()
+            fm:EnableNoClip()
+        end)
+    end
+end)
+
+function fm:EnableNoClip()
+    if not self.ch then return end
+
+    if self._NoClipConnection then
+        self._NoClipConnection:Disconnect()
+    end
+
+    for _, x in ipairs(self.ch:GetDescendants()) do
+        if x:IsA("BasePart") then
+            x.CanCollide = false
+            pcall(function() x.CollisionGroup = "NoCollision" end)
+        end
+    end
+
+    self._NoClipConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not self.ch then return end
+        for _, x in ipairs(self.ch:GetDescendants()) do
+            if x:IsA("BasePart") then
+
+                if x.CanCollide then
+                    x.CanCollide = false
+                    pcall(function() x.CollisionGroup = "NoCollision" end)
+                end
+            end
+        end
+    end)
+end
+
+function fm:DisableNoClip()
+    if self._NoClipConnection then
+        self._NoClipConnection:Disconnect()
+        self._NoClipConnection = nil
+    end
+    if not self.ch then return end
+    for _, x in ipairs(self.ch:GetDescendants()) do
+        if x:IsA("BasePart") then
+            x.CanCollide = true
+            pcall(function() x.CollisionGroup = "Default" end)
+        end
+    end
+end
+
+local function NoClipSetting()
+    if _G.Config.Other.NoClip then
+        fm:EnableNoClip()
+    else
+        fm:DisableNoClip()
+    end
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.Config.Other.NoClip == true and fm.ch then
+            for _, x in ipairs(fm.ch:GetDescendants()) do
+                if x:IsA("BasePart") and x.CanCollide then
+                    fm:EnableNoClip()
+                    break
+                end
+            end
+        end
+    end
+end)
+
+local Window
+
+Window = WindUI:CreateWindow({
+    Title = "牛逼外掛",
+    Author = "By 703 20",
+    Folder = "EZZZZZ",
+    OpenButton = {
+        Title = "點我打開",
+        CornerRadius = UDim.new(1,0),
+        StrokeThickness = 3,
+        Enabled = true,
+        Draggable = true,
+        OnlyMobile = true,
+        Scale = 1,
+        
+        Color = ColorSequence.new(
+            Color3.fromHex("#0c00f9"), 
+            Color3.fromHex("#7301ff")
+        )
+    },
+    Size = UDim2.fromOffset(590, 500),
+    Transparent = false,
+    Theme = "Midnight",
+    NewElements = false,
+    Topbar = {
+        Height = 44,
+        ButtonsType = "Default",
+    },
+
+    SideBarWidth = 200,
+    ScrollBarEnabled = true,
+})
+
+local Tabs = {}
+
+Tabs.MainTab = Window:Tab({
+    Title = "點我",
+    Icon = "palette"
+})
+
+Tabs.MainTab:Section({
+    Title = "Hitbox Expander Settings",
+    TextSize = 15,
+})
+
+Tabs.MainTab:Slider({
+    Title = "碰撞箱 大小",
+    Step = 10,
+    Value = {
+        Min = 10,
+        Max = 200,
+        Default = tonumber(_G.Config.Hitbox.Size) or 10
+    },
+    Callback = function(Value)
+        _G.Config.Hitbox.Size = Value
+    end
+})
+
+Tabs.MainTab:Toggle({
+    Title = "放大敵人碰撞箱",
+    Value = _G.Config.Hitbox.Enabled,
+    Callback = function(State)
+        _G.Config.Hitbox.Enabled = State
+        if State then
+        WindUI:Notify({
+            Title = "MangoJuice Hub Notify",
+            Content = "Hitbox Expander Enabled",
+            Icon = "solar:bell-bold",
+            Duration = 3
+        })
+        EnableHitbox()
+        else
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Hitbox Expander Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            DisableHitbox()
+        end
+    end
+})
+
+
+
+
+
+
+
