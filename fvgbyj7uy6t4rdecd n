@@ -4,6 +4,7 @@ local WindUI = loadstring(game:HttpGet(
 
 local Players = game:GetService("Players") 
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local WorkSpace = game:GetService("Workspace")
 
 fm = fm or {}
@@ -247,7 +248,7 @@ Tabs.MainTab:Toggle({
     Callback = function(State)
         _G.Config.Hitbox.Enabled = State
         if State then
-        EnableHitbox()
+            EnableHitbox()
         else
             DisableHitbox()
         end
@@ -264,6 +265,8 @@ WindUI:Notify({
     CanClose = true,
 })
 
+task.wait(4)
+
 WindUI:Notify({
     Title = "白名單驗證成功",
     Content = "使用者:陳柏儒",
@@ -271,6 +274,10 @@ WindUI:Notify({
     Duration = 15,
     CanClose = true,
 })
+
+
+
+
 
 
 
