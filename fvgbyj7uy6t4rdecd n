@@ -1,40 +1,40 @@
-local WindUI = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"
-))()
+if _G.Load == true then
+    return
+end
 
-local Players = game:GetService("Players") 
+_G.Load = false
+
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
+local PhysicsService = game:GetService("PhysicsService")
+
+pcall(function()
+    PhysicsService:RegisterCollisionGroup("NoCollision")
+    PhysicsService:CollisionGroupSetCollidable("NoCollision","Default",false)
+    PhysicsService:CollisionGroupSetCollidable("NoCollision","NoCollision",false)
+end)
 
 fm = fm or {}
-fm.ch = Players.LocalPlayer.Character
-local cg = game:GetService("PhysicsService")
-pcall(function() cg:RegisterCollisionGroup("NoCollision") end)
+fm.ch = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
-local Connections = {}
-local CharAddedConnections = {}
-local Originals = {}
-
-local AimNearest
-local Aimbot_NearestAimConnection = nil
-local Aimbot_SelectedAimConnection = nil
-
-_G.Config = {
-
-    Other = {
-        NoClip = false,
-    },
-
-    Aimbot = {
-        Enabled = false,
-        Distance = 100,
-        AimlockNearest = false,
-    }
+_G.Config = _G.Config or {}
+_G.Config.Other = _G.Config.Other or {NoClip = false}
+_G.Config.Aimbot = _G.Config.Aimbot or {
+    Enabled = false,
+    Distance = 300,
+    AimlockNearest = false,
+    Smoothness = 5,
+    FOV = 150
 }
 
-Players.LocalPlayer.CharacterAdded:Connect(function(char)
+local AimbotConnection
+
+LocalPlayer.CharacterAdded:Connect(function(char)
     fm.ch = char
     if _G.Config.Other.NoClip then
         task.defer(function()
@@ -45,28 +45,27 @@ end)
 
 function fm:EnableNoClip()
     if not self.ch then return end
-
     if self._NoClipConnection then
         self._NoClipConnection:Disconnect()
     end
 
-    for _, x in ipairs(self.ch:GetDescendants()) do
-        if x:IsA("BasePart") then
-            x.CanCollide = false
-            pcall(function() x.CollisionGroup = "NoCollision" end)
-        end
-    end
-
-    self._NoClipConnection = game:GetService("RunService").Heartbeat:Connect(function()
+    self._NoClipConnection = RunService.Stepped:Connect(function()
         if not self.ch then return end
-        for _, x in ipairs(self.ch:GetDescendants()) do
-            if x:IsA("BasePart") then
 
-                if x.CanCollide then
-                    x.CanCollide = false
-                    pcall(function() x.CollisionGroup = "NoCollision" end)
+        for _,v in ipairs(self.ch:GetDescendants()) do
+            if v:IsA("BasePart") then
+                if v.Name ~= "HumanoidRootPart"
+                and v.Name ~= "LeftFoot"
+                and v.Name ~= "RightFoot" then
+                    v.CanCollide = false
+                    pcall(function() v.CollisionGroup = "NoCollision" end)
                 end
             end
+        end
+
+        local root = self.ch:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.Velocity = Vector3.new(root.Velocity.X, 0, root.Velocity.Z)
         end
     end)
 end
@@ -77,10 +76,10 @@ function fm:DisableNoClip()
         self._NoClipConnection = nil
     end
     if not self.ch then return end
-    for _, x in ipairs(self.ch:GetDescendants()) do
-        if x:IsA("BasePart") then
-            x.CanCollide = true
-            pcall(function() x.CollisionGroup = "Default" end)
+    for _,v in ipairs(self.ch:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.CanCollide = true
+            pcall(function() v.CollisionGroup = "Default" end)
         end
     end
 end
@@ -93,184 +92,95 @@ local function NoClipSetting()
     end
 end
 
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        if _G.Config.Other.NoClip == true and fm.ch then
-            for _, x in ipairs(fm.ch:GetDescendants()) do
-                if x:IsA("BasePart") and x.CanCollide then
-                    fm:EnableNoClip()
-                    break
+local function IsVisible(targetPart)
+    local origin = Camera.CFrame.Position
+    local direction = (targetPart.Position - origin)
+    local params = RaycastParams.new()
+    params.FilterDescendantsInstances = {LocalPlayer.Character}
+    params.FilterType = Enum.RaycastFilterType.Blacklist
+    local result = Workspace:Raycast(origin, direction, params)
+    if result then
+        return result.Instance:IsDescendantOf(targetPart.Parent)
+    end
+    return true
+end
+
+local function GetClosestTarget()
+    local closest = nil
+    local shortest = _G.Config.Aimbot.FOV
+    local mousePos = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+
+    for _,player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            local hum = player.Character:FindFirstChild("Humanoid")
+            if hrp and hum and hum.Health > 0 then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+                if onScreen then
+                    local dist = (Vector2.new(screenPos.X,screenPos.Y) - mousePos).Magnitude
+                    if dist < shortest and IsVisible(hrp) then
+                        shortest = dist
+                        closest = hrp
+                    end
                 end
             end
         end
     end
-end)
 
-local function Aimbot_GetDistanceSquared(pos1, pos2)
-    return (pos1 - pos2).Magnitude^2
+    return closest
 end
 
-local function Aimbot_GetNearestPlayer()
-    local closestPlayer = nil
-    local maxDistanceSq = _G.Config.Aimbot.Distance * _G.Config.Aimbot.Distance
-    local shortestDistance = maxDistanceSq
-
-    local myCharacter = LocalPlayer.Character
-    if not myCharacter or not myCharacter:FindFirstChild("HumanoidRootPart") then
-        return nil
+local function StopAimbot()
+    if AimbotConnection then
+        AimbotConnection:Disconnect()
+        AimbotConnection = nil
     end
+end
 
-    local root = myCharacter.HumanoidRootPart
-    local myPosition = root.Position
-    local hum = Players.Character:FindFirstChild("Humanoid")
-
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer
-        and player.Character
-        and hum and hum.Health > 0 then
-
-            local targetPos = player.Character.HumanoidRootPart.Position
-            local distance = Aimbot_GetDistanceSquared(myPosition, targetPos)
-
-            if distance < shortestDistance then
-                shortestDistance = distance
-                closestPlayer = player
-            end
+local function StartAimbot()
+    StopAimbot()
+    AimbotConnection = RunService.RenderStepped:Connect(function()
+        local target = GetClosestTarget()
+        if target then
+            local targetCF = CFrame.new(Camera.CFrame.Position, target.Position + Vector3.new(0,2,0))
+            Camera.CFrame = Camera.CFrame:Lerp(targetCF, math.clamp(_G.Config.Aimbot.Smoothness,0,1))
         end
-    end
-
-    if closestPlayer then
-        local targetPos = closestPlayer.Character.HumanoidRootPart.Position
-
-        local lookAtPosition = Vector3.new(
-            targetPos.X,
-            myPosition.Y,
-            targetPos.Z
-        )
-
-        root.CFrame = CFrame.new(myPosition, lookAtPosition)
-
-        return targetPos
-    end
-
-    return nil
+    end)
 end
 
-local function Aimbot_GetPlayerList()
-    local list = {}
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer then
-            table.insert(list, plr.Name)
-        end
-    end
-    return list
-end
-
-local function Aimbot_StopAll()
-    if Aimbot_SelectedAimConnection then
-        Aimbot_SelectedAimConnection:Disconnect()
-        Aimbot_SelectedAimConnection = nil
-    end
-
-    if Aimbot_NearestAimConnection then
-        Aimbot_NearestAimConnection:Disconnect()
-        Aimbot_NearestAimConnection = nil
-    end
-end
-
-local Window
-
-Window = WindUI:CreateWindow({
+local Window = WindUI:CreateWindow({
     Title = "牛逼外掛",
     Author = "By 703 20",
     Folder = "EZZZZZ",
-    OpenButton = {
-        Title = "點我打開",
-        CornerRadius = UDim.new(1,0),
-        StrokeThickness = 3,
-        Enabled = true,
-        Draggable = true,
-        OnlyMobile = true,
-        Scale = 1,
-        
-        Color = ColorSequence.new(
-            Color3.fromHex("#0c00f9"), 
-            Color3.fromHex("#7301ff")
-        )
-    },
-    Size = UDim2.fromOffset(590, 500),
-    Transparent = false,
-    Theme = "Midnight",
-    NewElements = false,
-    Topbar = {
-        Height = 44,
-        ButtonsType = "Default",
-    },
-
-    SideBarWidth = 200,
-    ScrollBarEnabled = true,
+    Size = UDim2.fromOffset(590,500),
+    Theme = "Midnight"
 })
 
 local Tabs = {}
 
-Tabs.MainTab = Window:Tab({
-    Title = "點我",
-    Icon = "palette"
-})
+Tabs.MainTab = Window:Tab({Title="Main",Icon="home"})
 
-Tabs.MainTab:Section({
-    Title = "自動瞄準",
-    TextSize = 15,
-})
+Tabs.MainTab:Section({Title="Aimbot",TextSize=15})
 
-AimNearest = Tabs.MainTab:Toggle({
-    Title = "自動瞄準最近的敵人",
-    Value = _G.Config.Aimbot.AimlockNearest,
-    Callback = function(state)
-        _G.Config.Aimbot.AimlockNearest = state
-        Aimbot_StopAll()
-        task.wait()
-
-        if state then
-            WindUI:Notify({
-                Title = "MangoJuice Hub Notify",
-                Content = "Aimlock Nearest Player Enabled",
-                Icon = "solar:bell-bold",
-                Duration = 3
-            })
-            Aimbot_NearestAimConnection = RunService.RenderStepped:Connect(function()
-                local targetPos = Aimbot_GetNearestPlayer()
-                if targetPos then
-                    Camera.CFrame = CFrame.new(
-                        Camera.CFrame.Position,
-                        targetPos + Vector3.new(0, 2, 0)
-                    )
-                end
-            end)
-        else 
-            WindUI:Notify({
-                Title = "MangoJuice Hub Notify",
-                Content = "Aimlock Nearest Player Disabled",
-                Icon = "solar:bell-bold",
-                Duration = 3
-            })    
-            Aimbot_NearestAimConnection:Disconnect()
+Tabs.MainTab:Toggle({
+    Title = "啟用Aimbot",
+    Value = _G.Config.Aimbot.Enabled,
+    Callback = function(v)
+        _G.Config.Aimbot.Enabled = v
+        if v then
+            StartAimbot()
+        else
+            StopAimbot()
         end
     end
 })
 
 Tabs.MainTab:Slider({
-    Title = "瞄準距離",
-    Step = 100,
-    Value = {
-        Min = 100,
-        Max = 1000,
-        Default = _G.Config.Aimbot.Distance,
-    },
-    Callback = function(value)
-        _G.Config.Aimbot.Distance = value
+    Title = "鎖定範圍",
+    Step = 10,
+    Value = {Min=50,Max=400,Default=_G.Config.Aimbot.Smoothness},
+    Callback = function(v)
+        _G.Config.Aimbot.Smoothness = v
     end
 })
 
@@ -279,46 +189,14 @@ Tabs.MainTab:Space()
 Tabs.MainTab:Toggle({
     Title = "穿牆",
     Value = _G.Config.Other.NoClip,
-    Callback = function(state)
-        _G.Config.Other.NoClip = state
-        NoClipSetting()
-        if state then
-         WindUI:Notify({
-                    Title = "穿牆",
-                    Content = "這東西能穿過陳柏儒的雞巴",
-                    Duration = 5
-                })
-        else
-            WindUI:Notify({
-                Title = "穿牆關閉",
-                Content = "這東西能穿過陳柏儒的雞巴",
-                Duration = 5
-            })
+    Locked = true,
+    LockedTitle = "被你的雞巴頂壞了",
+    Callback = function(v)
         end
-    end
 })
 
 WindUI:Notify({
-    Title = "驗證白名單中 ..",
-    Content = "請稍後",
-    Icon = "solar:bell-bold",
-    Duration = 5,
-    CanClose = true,
-})
-
-task.wait(4)
-
-WindUI:Notify({
-    Title = "白名單驗證成功",
+    Title = "載入完成",
     Content = "使用者:陳柏儒",
-    Icon = "solar:bell-bold",
-    Duration = 60,
-    CanClose = true,
+    Duration = 5
 })
-
-
-
-
-
-
-
