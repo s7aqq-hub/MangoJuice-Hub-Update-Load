@@ -123,11 +123,13 @@ local function Aimbot_GetNearestPlayer()
 
     local root = myCharacter.HumanoidRootPart
     local myPosition = root.Position
+    local hum = Players.Character:FindFirstChild("Humanoid")
+
 
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer
         and player.Character
-        and player.Character:FindFirstChild("HumanoidRootPart") then
+        and hum and hum.Health > 0 then
 
             local targetPos = player.Character.HumanoidRootPart.Position
             local distance = Aimbot_GetDistanceSquared(myPosition, targetPos)
@@ -273,6 +275,28 @@ Tabs.MainTab:Slider({
 })
 
 Tabs.MainTab:Space()
+
+Tabs.MainTab:Toggle({
+    Title = "穿牆",
+    Value = _G.Config.Other.NoClip,
+    Callback = function(state)
+        _G.Config.Other.NoClip = state
+        NoClipSetting()
+        if state then
+         WindUI:Notify({
+                    Title = "穿牆",
+                    Content = "這東西能穿過陳柏儒的雞巴",
+                    Duration = 5
+                })
+        else
+            WindUI:Notify({
+                Title = "穿牆關閉",
+                Content = "這東西能穿過陳柏儒的雞巴",
+                Duration = 5
+            })
+        end
+    end
+})
 
 WindUI:Notify({
     Title = "驗證白名單中 ..",
