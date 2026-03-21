@@ -3,7 +3,7 @@ local WindUI = loadstring(game:HttpGet(
 ))()
 
 local Players = game:GetService("Players") 
-local LocalPlayer = Players.LocalPLayer
+local LocalPlayer = Players.LocalPlayer
 local WorkSpace = game:GetService("Workspace")
 
 fm = fm or {}
