@@ -5,7 +5,8 @@ local WindUI = loadstring(game:HttpGet(
 local Players = game:GetService("Players") 
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local WorkSpace = game:GetService("Workspace")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
 
 fm = fm or {}
 fm.ch = Players.LocalPlayer.Character
@@ -15,89 +16,10 @@ pcall(function() cg:RegisterCollisionGroup("NoCollision") end)
 local Connections = {}
 local CharAddedConnections = {}
 local Originals = {}
-local HITBOX_VALUE = _G.HitboxSize or 50
-local HITBOX_COLOR = Color3.fromRGB(0,0,0) --Color3.fromRGB(0, 0, 255)
-local HITBOX_ALPHA = 0.9
 
-local function SetHitbox(player)
-    if player == LocalPlayer or Connections[player] then
-        return
-    end
-
-    Connections[player] = RunService.RenderStepped:Connect(function()
-        if not _G.Config.Hitbox.Enabled then return end
-
-        local char = player.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        if not Originals[player] then
-            Originals[player] = {
-                Size = hrp.Size,
-                Color = hrp.Color,
-                Transparency = hrp.Transparency,
-                CanCollide = hrp.CanCollide
-            }
-        end
-
-        local size = _G.Config.Hitbox.Size or 50
-
-        hrp.Size = Vector3.new(size, size, size)
-        hrp.Color = HITBOX_COLOR
-        hrp.Transparency = HITBOX_ALPHA
-        hrp.CanCollide = false
-    end)
-end
-
-local function WatchCharacter(player)
-    if CharAddedConnections[player] then return end
-
-    CharAddedConnections[player] = player.CharacterAdded:Connect(function()
-        task.wait(0.2)
-        Originals[player] = nil
-        if _G.Config.Hitbox.Enabled then
-            SetHitbox(player)
-        end
-    end)
-end
-
-local function EnableHitbox()
-    _G.Config.Hitbox.Enabled = true
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            SetHitbox(player)
-            WatchCharacter(player)
-        end
-    end
-end
-
-local function DisableHitbox()
-    _G.Config.Hitbox.Enabled = false
-
-    for _, conn in pairs(Connections) do
-        if conn then conn:Disconnect() end
-    end
-
-    for player, data in pairs(Originals) do
-        local char = player.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp and data then
-            hrp.Size = data.Size
-            hrp.Color = data.Color
-            hrp.Transparency = data.Transparency
-            hrp.CanCollide = data.CanCollide
-        end
-    end
-
-    for _, conn in pairs(CharAddedConnections) do
-        if conn then conn:Disconnect() end
-    end
-
-    table.clear(Connections)
-    table.clear(Originals)
-    table.clear(CharAddedConnections)
-end
+local AimNearest
+local Aimbot_NearestAimConnection = nil
+local Aimbot_SelectedAimConnection = nil
 
 _G.Config = {
 
@@ -105,10 +27,11 @@ _G.Config = {
         NoClip = false,
     },
 
-    Hitbox = {
+    Aimbot = {
         Enabled = false,
-        Size = 10,
-    },
+        Distance = 100,
+        AimlockNearest = false,
+    }
 }
 
 Players.LocalPlayer.CharacterAdded:Connect(function(char)
@@ -184,6 +107,77 @@ task.spawn(function()
     end
 end)
 
+local function Aimbot_GetDistanceSquared(pos1, pos2)
+    return (pos1 - pos2).Magnitude^2
+end
+
+local function Aimbot_GetNearestPlayer()
+    local closestPlayer = nil
+    local maxDistanceSq = _G.Config.Aimbot.Distance * _G.Config.Aimbot.Distance
+    local shortestDistance = maxDistanceSq
+
+    local myCharacter = LocalPlayer.Character
+    if not myCharacter or not myCharacter:FindFirstChild("HumanoidRootPart") then
+        return nil
+    end
+
+    local root = myCharacter.HumanoidRootPart
+    local myPosition = root.Position
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer
+        and player.Character
+        and player.Character:FindFirstChild("HumanoidRootPart") then
+
+            local targetPos = player.Character.HumanoidRootPart.Position
+            local distance = Aimbot_GetDistanceSquared(myPosition, targetPos)
+
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+
+    if closestPlayer then
+        local targetPos = closestPlayer.Character.HumanoidRootPart.Position
+
+        local lookAtPosition = Vector3.new(
+            targetPos.X,
+            myPosition.Y,
+            targetPos.Z
+        )
+
+        root.CFrame = CFrame.new(myPosition, lookAtPosition)
+
+        return targetPos
+    end
+
+    return nil
+end
+
+local function Aimbot_GetPlayerList()
+    local list = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            table.insert(list, plr.Name)
+        end
+    end
+    return list
+end
+
+local function Aimbot_StopAll()
+    if Aimbot_SelectedAimConnection then
+        Aimbot_SelectedAimConnection:Disconnect()
+        Aimbot_SelectedAimConnection = nil
+    end
+
+    if Aimbot_NearestAimConnection then
+        Aimbot_NearestAimConnection:Disconnect()
+        Aimbot_NearestAimConnection = nil
+    end
+end
+
 local Window
 
 Window = WindUI:CreateWindow({
@@ -225,33 +219,56 @@ Tabs.MainTab = Window:Tab({
 })
 
 Tabs.MainTab:Section({
-    Title = "Hitbox Expander Settings",
+    Title = "自動瞄準",
     TextSize = 15,
 })
 
-Tabs.MainTab:Slider({
-    Title = "碰撞箱 大小",
-    Step = 10,
-    Value = {
-        Min = 10,
-        Max = 200,
-        Default = tonumber(_G.Config.Hitbox.Size) or 10
-    },
-    Callback = function(Value)
-        _G.Config.Hitbox.Size = Value
+AimNearest = Tabs.MainTab:Toggle({
+    Title = "自動瞄準最近的敵人",
+    Value = _G.Config.Aimbot.AimlockNearest,
+    Callback = function(state)
+        _G.Config.Aimbot.AimlockNearest = state
+        Aimbot_StopAll()
+        task.wait()
+
+        if state then
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Aimlock Nearest Player Enabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })
+            Aimbot_NearestAimConnection = RunService.RenderStepped:Connect(function()
+                local targetPos = Aimbot_GetNearestPlayer()
+                if targetPos then
+                    Camera.CFrame = CFrame.new(
+                        Camera.CFrame.Position,
+                        targetPos + Vector3.new(0, 2, 0)
+                    )
+                end
+            end)
+        else 
+            WindUI:Notify({
+                Title = "MangoJuice Hub Notify",
+                Content = "Aimlock Nearest Player Disabled",
+                Icon = "solar:bell-bold",
+                Duration = 3
+            })    
+            Aimbot_NearestAimConnection:Disconnect()
+        end
     end
 })
 
-Tabs.MainTab:Toggle({
-    Title = "放大敵人碰撞箱",
-    Value = _G.Config.Hitbox.Enabled,
-    Callback = function(State)
-        _G.Config.Hitbox.Enabled = State
-        if State then
-            EnableHitbox()
-        else
-            DisableHitbox()
-        end
+Tabs.MainTab:Slider({
+    Title = "瞄準距離",
+    Step = 100,
+    Value = {
+        Min = 100,
+        Max = 1000,
+        Default = _G.Config.Aimbot.Distance,
+    },
+    Callback = function(value)
+        _G.Config.Aimbot.Distance = value
     end
 })
 
@@ -261,7 +278,7 @@ WindUI:Notify({
     Title = "驗證白名單中 ..",
     Content = "請稍後",
     Icon = "solar:bell-bold",
-    Duration = 15,
+    Duration = 5,
     CanClose = true,
 })
 
@@ -271,7 +288,7 @@ WindUI:Notify({
     Title = "白名單驗證成功",
     Content = "使用者:陳柏儒",
     Icon = "solar:bell-bold",
-    Duration = 15,
+    Duration = 60,
     CanClose = true,
 })
 
